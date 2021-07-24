@@ -11,6 +11,7 @@
 
     <modules>
         <module>fn4j-vavr</module>
+        <module>fn4j-control</module>
     </modules>
 
     <properties>
