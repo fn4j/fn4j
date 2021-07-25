@@ -209,7 +209,7 @@ class OkTest {
         Result<A, B> result = Result.ok(b);
 
         // when
-        Result<C, D> r = result.bimap(__ -> fail("errorMapper must not be called"),
+        Result<C, D> r = result.biMap(__ -> fail("errorMapper must not be called"),
                                       _b -> {
                                           assertThat(_b).isSameAs(b);
                                           return d;

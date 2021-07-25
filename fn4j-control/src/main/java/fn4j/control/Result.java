@@ -8,6 +8,7 @@ import io.vavr.collection.Vector;
 import java.util.NoSuchElementException;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public interface Result<E, O> extends Value<O> {
     static <E, O> Result<E, O> ok(O ok) {
@@ -30,7 +31,12 @@ public interface Result<E, O> extends Value<O> {
     E getError();
 
     static <E, O> Result<E, Seq<O>> sequenceOk(Iterable<? extends Result<? extends E, ? extends O>> results) {
-        Vector<O> okValues = Vector.empty();
+        return sequenceOk(results, Vector::empty);
+    }
+
+    static <E, O> Result<E, Seq<O>> sequenceOk(Iterable<? extends Result<? extends E, ? extends O>> results,
+                                               Supplier<Seq<O>> empty) {
+        Seq<O> okValues = empty.get();
         for (Result<? extends E, ? extends O> result : results) {
             if (result.isOk()) {
                 okValues = okValues.append(result.get());
@@ -72,17 +78,31 @@ public interface Result<E, O> extends Value<O> {
 
     @Override
     default Result<E, O> peek(Consumer<? super O> action) {
-        if (isOk()) {
-            action.accept(get());
-        }
+        return peekOk(action);
+    }
+
+    default Result<E, O> peekOk(Consumer<? super O> action) {
+        forEachOk(action);
         return this;
     }
 
-    // TODO: peekOk
-    // TODO: peekError
+    default Result<E, O> peekError(Consumer<? super E> action) {
+        forEachError(action);
+        return this;
+    }
+
+    default Result<E, O> biPeek(Consumer<? super E> errorAction,
+                                Consumer<? super O> okAction) {
+        biForEach(errorAction, okAction);
+        return this;
+    }
+
+    default <U> Result<E, U> flatMap(Function<? super O, ? extends Result<E, ? extends U>> mapper) {
+        return flatMapOk(mapper);
+    }
 
     @SuppressWarnings("unchecked")
-    default <U> Result<E, U> flatMap(Function<? super O, ? extends Result<E, ? extends U>> mapper) {
+    default <U> Result<E, U> flatMapOk(Function<? super O, ? extends Result<E, ? extends U>> mapper) {
         if (isOk()) {
             return (Result<E, U>) mapper.apply(get());
         } else {
@@ -90,24 +110,50 @@ public interface Result<E, O> extends Value<O> {
         }
     }
 
-    // TODO: flatMapOk
-    // TODO: flatMapError
+    @SuppressWarnings("unchecked")
+    default <F> Result<F, O> flatMapError(Function<? super E, ? extends Result<? extends F, ? extends O>> mapper) {
+        if (isOk()) {
+            return (Result<F, O>) this;
+        } else {
+            return (Result<F, O>) mapper.apply(getError());
+        }
+    }
 
-    // TODO: recover
-    // TODO: break?
-    // TODO: recoverWith
+    @SuppressWarnings("unchecked")
+    default <U> Result<E, U> recover(Function<? super E, ? extends U> mapper) {
+        if (isOk()) {
+            return (Result<E, U>) this;
+        } else {
+            return ok(mapper.apply(getError()));
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    default <F> Result<F, O> toError(Function<? super O, ? extends F> mapper) {
+        if (isOk()) {
+            return error(mapper.apply(get()));
+        } else {
+            return (Result<F, O>) this;
+        }
+    }
+
+    default <F> Result<F, O> recoverWith(Function<? super E, ? extends Result<? extends F, ? extends O>> mapper) {
+        return flatMapError(mapper);
+    }
 
     @Override
-    @SuppressWarnings("unchecked")
     default <U> Result<E, U> map(Function<? super O, ? extends U> mapper) {
+        return mapOk(mapper);
+    }
+
+    @SuppressWarnings("unchecked")
+    default <U> Result<E, U> mapOk(Function<? super O, ? extends U> mapper) {
         if (isOk()) {
             return ok(mapper.apply(get()));
         } else {
             return (Result<E, U>) this;
         }
     }
-
-    // TODO: mapOk
 
     @SuppressWarnings("unchecked")
     default <F> Result<F, O> mapError(Function<? super E, ? extends F> mapper) {
@@ -118,7 +164,7 @@ public interface Result<E, O> extends Value<O> {
         }
     }
 
-    default <F, U> Result<F, U> bimap(Function<? super E, ? extends F> errorMapper,
+    default <F, U> Result<F, U> biMap(Function<? super E, ? extends F> errorMapper,
                                       Function<? super O, ? extends U> okMapper) {
         if (isOk()) {
             return ok(okMapper.apply(get()));
@@ -127,16 +173,29 @@ public interface Result<E, O> extends Value<O> {
         }
     }
 
-    // TODO: forEachOk
-    // TODO: forEachError
-    // TODO: biForEach
+    @Override
+    default void forEach(Consumer<? super O> action) {
+        forEachOk(action);
+    }
 
-    default void biforeach(Consumer<? super E> errorConsumer,
-                           Consumer<? super O> okConsumer) {
+    default void forEachOk(Consumer<? super O> action) {
         if (isOk()) {
-            okConsumer.accept(get());
+            action.accept(get());
+        }
+    }
+
+    default void forEachError(Consumer<? super E> action) {
+        if (isError()) {
+            action.accept(getError());
+        }
+    }
+
+    default void biForEach(Consumer<? super E> errorAction,
+                           Consumer<? super O> okAction) {
+        if (isOk()) {
+            okAction.accept(get());
         } else {
-            errorConsumer.accept(getError());
+            errorAction.accept(getError());
         }
     }
 
