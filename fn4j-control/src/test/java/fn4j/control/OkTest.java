@@ -19,6 +19,7 @@ class OkTest {
 
         // then
         assertThat(r).isTrue();
+        assertThat(result).isExactlyInstanceOf(Result.Ok.class);
     }
 
     @Test
@@ -31,6 +32,7 @@ class OkTest {
 
         // then
         assertThat(r).isFalse();
+        assertThat(result).isNotInstanceOf(Result.Error.class);
     }
 
     @Test
@@ -39,7 +41,7 @@ class OkTest {
         Result<A, B> result = Result.ok(b);
 
         // when
-        B r = result.get();
+        B r = result.getOk();
 
         // then
         assertThat(r).isSameAs(b);
@@ -55,6 +57,33 @@ class OkTest {
 
         // then
         assertThat(r).hasMessage("getError() on Ok");
+    }
+
+    @Test
+    void shouldHaveStringRepresentation() {
+        // given
+        Result<A, B> result = Result.ok(b);
+
+        // when
+        String r = result.toString();
+
+        // then
+        assertThat(r).isEqualTo("Ok(B)");
+    }
+
+    // TODO: Test narrow
+    // TODO: Test sequenceOk
+
+    @Test
+    void shouldHaveValue() {
+        // given
+        Result<A, B> result = Result.ok(b);
+
+        // when
+        B r = result.get();
+
+        // then
+        assertThat(r).isSameAs(b);
     }
 
     @Test
@@ -94,18 +123,6 @@ class OkTest {
     }
 
     @Test
-    void shouldHaveStringRepresentation() {
-        // given
-        Result<A, B> result = Result.ok(b);
-
-        // when
-        String r = result.toString();
-
-        // then
-        assertThat(r).isEqualTo("Ok(B)");
-    }
-
-    @Test
     void shouldHaveIterator() {
         // given
         Result<A, B> result = Result.ok(b);
@@ -114,8 +131,7 @@ class OkTest {
         Iterator<B> r = result.iterator();
 
         // then
-        assertThat(r.toJavaList()).singleElement()
-                                  .isSameAs(b);
+        assertThat((Iterable<B>) r).containsExactly(b);
     }
 
     @Test
@@ -134,15 +150,62 @@ class OkTest {
     void shouldPeek() {
         // given
         Result<A, B> result = Result.ok(b);
-        AtomicBoolean consumed = new AtomicBoolean(false);
+        AtomicBoolean peeked = new AtomicBoolean(false);
 
         // when
-        Result<A, B> r = result.peek((B __) -> consumed.set(true));
+        Result<A, B> r = result.peek((B __) -> peeked.set(true));
 
         // then
-        assertThat(consumed).isTrue();
+        assertThat(peeked).isTrue();
         assertThat(r).isSameAs(result);
     }
+
+    @Test
+    void shouldPeekOk() {
+        // given
+        Result<A, B> result = Result.ok(b);
+        AtomicBoolean peekedOk = new AtomicBoolean(false);
+
+        // when
+        Result<A, B> r = result.peekOk((B __) -> peekedOk.set(true));
+
+        // then
+        assertThat(peekedOk).isTrue();
+        assertThat(r).isSameAs(result);
+    }
+
+    @Test
+    void shouldNotPeekError() {
+        // given
+        Result<A, B> result = Result.ok(b);
+        AtomicBoolean peekedError = new AtomicBoolean(false);
+
+        // when
+        Result<A, B> r = result.peekError((A __) -> peekedError.set(true));
+
+        // then
+        assertThat(peekedError).isFalse();
+        assertThat(r).isSameAs(result);
+    }
+
+    @Test
+    void shouldBiPeek() {
+        // given
+        Result<A, B> result = Result.ok(b);
+        AtomicBoolean peekedOk = new AtomicBoolean(false);
+        AtomicBoolean peekedError = new AtomicBoolean(false);
+
+        // when
+        Result<A, B> r = result.biPeek((A __) -> peekedError.set(true),
+                                       (B __) -> peekedOk.set(true));
+
+        // then
+        assertThat(peekedOk).isTrue();
+        assertThat(peekedError).isFalse();
+        assertThat(r).isSameAs(result);
+    }
+
+    // TODO: Continue with test(s?) for flatMap
 
     @Test
     void shouldFlatMapToError() {

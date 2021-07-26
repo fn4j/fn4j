@@ -24,12 +24,6 @@ public interface Result<E, O> extends Value<O> {
         return (Result<E, O>) result;
     }
 
-    boolean isOk();
-
-    boolean isError();
-
-    E getError();
-
     static <E, O> Result<E, Seq<O>> sequenceOk(Iterable<? extends Result<? extends E, ? extends O>> results) {
         return sequenceOk(results, Vector::empty);
     }
@@ -46,6 +40,19 @@ public interface Result<E, O> extends Value<O> {
         }
         return ok(okValues);
     }
+
+    boolean isOk();
+
+    boolean isError();
+
+    @Override
+    default O get() {
+        return getOk();
+    }
+
+    O getOk();
+
+    E getError();
 
     @Override
     default boolean isAsync() {
@@ -226,7 +233,7 @@ public interface Result<E, O> extends Value<O> {
         }
 
         @Override
-        public O get() {
+        public O getOk() {
             return value;
         }
 
@@ -264,7 +271,7 @@ public interface Result<E, O> extends Value<O> {
         }
 
         @Override
-        public O get() {
+        public O getOk() {
             throw new NoSuchElementException("get() on Error");
         }
 
