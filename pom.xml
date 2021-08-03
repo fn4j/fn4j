@@ -19,6 +19,7 @@
 
     <modules>
         <module>fn4j-http</module>
+        <module>fn4j-http-client</module>
         <module>fn4j-http-server</module>
         <module>fn4j-http-server-apachehc</module>
     </modules>
@@ -39,6 +40,11 @@
             <dependency>
                 <groupId>fn4j</groupId>
                 <artifactId>fn4j-http</artifactId>
+                <version>${version}</version>
+            </dependency>
+            <dependency>
+                <groupId>fn4j</groupId>
+                <artifactId>fn4j-http-client</artifactId>
                 <version>${version}</version>
             </dependency>
             <dependency>
