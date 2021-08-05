@@ -18,6 +18,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>fn4j-http</module>
     </modules>
 
     <properties>
@@ -29,6 +30,12 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>fn4j</groupId>
+                <artifactId>fn4j-http</artifactId>
+                <version>${version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>io.vavr</groupId>
                 <artifactId>vavr</artifactId>
