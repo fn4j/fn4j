@@ -20,6 +20,7 @@
     <modules>
         <module>fn4j-http</module>
         <module>fn4j-http-server</module>
+        <module>fn4j-http-server-apachehc</module>
     </modules>
 
     <properties>
@@ -27,6 +28,10 @@
         <maven.compiler.target>16</maven.compiler.target>
 
         <vavr.version>0.10.4</vavr.version>
+
+        <slf4j.version>1.7.30</slf4j.version>
+
+        <apachehc.version>5.1.1</apachehc.version>
     </properties>
 
     <dependencyManagement>
@@ -41,11 +46,33 @@
                 <artifactId>fn4j-http-server</artifactId>
                 <version>${version}</version>
             </dependency>
+            <dependency>
+                <groupId>fn4j</groupId>
+                <artifactId>fn4j-http-server-apachehc</artifactId>
+                <version>${version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>io.vavr</groupId>
                 <artifactId>vavr</artifactId>
                 <version>${vavr.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-simple</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.httpcomponents.core5</groupId>
+                <artifactId>httpcore5-reactive</artifactId>
+                <version>${apachehc.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
