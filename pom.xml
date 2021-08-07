@@ -20,6 +20,7 @@
     <modules>
         <module>fn4j-http-client</module>
         <module>fn4j-http-core</module>
+        <module>fn4j-http-core-assertj</module>
         <module>fn4j-http-core-jqwik</module>
         <module>fn4j-http-server</module>
         <module>fn4j-http-server-apachehc</module>

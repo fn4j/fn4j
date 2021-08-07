@@ -8,6 +8,7 @@ import net.jqwik.api.Example;
 import net.jqwik.api.ForAll;
 import net.jqwik.api.Label;
 
+import static fn4j.http.core.Fn4jHttpCoreInstanceOfAssertFactories.RESPONSE;
 import static fn4j.http.core.HeaderName.ALLOW;
 import static fn4j.http.core.Method.POST_VALUE;
 import static fn4j.http.core.Status.METHOD_NOT_ALLOWED;
@@ -71,10 +72,8 @@ class MethodMatcherTest {
             assertThat(result.toTry()).isSuccess()
                                       .extracting(Try::get)
                                       .isSameAs(response)
-                                      .satisfies(res -> {
-                                          // TODO: fn4j-http-core-assertj
-                                          assertThat(res.status()).isEqualTo(OK);
-                                      });
+                                      .asInstanceOf(RESPONSE)
+                                      .hasStatus(OK);
         }
     }
 
@@ -120,11 +119,13 @@ class MethodMatcherTest {
             // then
             assertThat(result.toTry()).isSuccess()
                                       .extracting(Try::get)
-                                      .satisfies(response -> {
+                                      .asInstanceOf(RESPONSE)
+                                      .hasStatus(METHOD_NOT_ALLOWED)
+                                      .hasNoBody()
+                                      .extracting(Head::headers)
+                                      .satisfies(headers -> {
                                           // TODO: fn4j-http-core-assertj
-                                          assertThat(response.status()).isEqualTo(METHOD_NOT_ALLOWED);
-                                          assertThat(response.headers().stream()).contains(Tuple.of(ALLOW, new HeaderValue("GET,POST")));
-                                          assertThat(response.maybeBody()).isEmpty();
+                                          assertThat(headers.stream()).contains(Tuple.of(ALLOW, new HeaderValue("GET,POST")));
                                       });
         }
     }
@@ -165,11 +166,13 @@ class MethodMatcherTest {
             // then
             assertThat(result.toTry()).isSuccess()
                                       .extracting(Try::get)
-                                      .satisfies(response -> {
+                                      .asInstanceOf(RESPONSE)
+                                      .hasStatus(METHOD_NOT_ALLOWED)
+                                      .hasNoBody()
+                                      .extracting(Response::headers)
+                                      .satisfies(headers -> {
                                           // TODO: fn4j-http-core-assertj
-                                          assertThat(response.status()).isEqualTo(METHOD_NOT_ALLOWED);
-                                          assertThat(response.headers().stream()).contains(Tuple.of(ALLOW, new HeaderValue("")));
-                                          assertThat(response.maybeBody()).isEmpty();
+                                          assertThat(headers.stream()).contains(Tuple.of(ALLOW, new HeaderValue("")));
                                       });
         }
     }

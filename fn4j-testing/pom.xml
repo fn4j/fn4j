@@ -24,6 +24,11 @@
         <dependencies>
             <dependency>
                 <groupId>fn4j</groupId>
+                <artifactId>fn4j-http-core-assertj</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>fn4j</groupId>
                 <artifactId>fn4j-http-core-jqwik</artifactId>
                 <version>${project.version}</version>
             </dependency>
