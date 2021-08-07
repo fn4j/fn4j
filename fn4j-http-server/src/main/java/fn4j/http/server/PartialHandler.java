@@ -12,6 +12,6 @@ public interface PartialHandler<A, B> extends Function1<Request<A>, Option<Futur
     Option<Future<Response<B>>> apply(Request<A> aRequest);
 
     default Handler<A, B> orElse(Handler<A, B> other) {
-        return request -> apply(request).getOrElse(other.apply(request));
+        return request -> apply(request).getOrElse(() -> other.apply(request));
     }
 }

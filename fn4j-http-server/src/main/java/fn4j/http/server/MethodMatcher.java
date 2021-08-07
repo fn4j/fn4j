@@ -12,8 +12,7 @@ import io.vavr.control.Option;
 
 import static fn4j.http.core.HeaderName.ALLOW;
 import static fn4j.http.core.Headers.headers;
-import static fn4j.http.core.Method.GET;
-import static fn4j.http.core.Method.HEAD;
+import static fn4j.http.core.Method.*;
 import static fn4j.http.core.ResponseHead.responseHead;
 import static fn4j.http.core.Status.METHOD_NOT_ALLOWED;
 import static fn4j.http.server.Handler.methodCase;
@@ -42,7 +41,33 @@ public class MethodMatcher<A, B> implements PartialHandler<A, B> {
         return methodCase(HEAD, handler);
     }
 
-    // TODO: POST, ...
+    public static <A, B> Tuple2<Method, Handler<A, B>> POST(Handler<A, B> handler) {
+        return methodCase(POST, handler);
+    }
+
+    public static <A, B> Tuple2<Method, Handler<A, B>> PUT(Handler<A, B> handler) {
+        return methodCase(PUT, handler);
+    }
+
+    public static <A, B> Tuple2<Method, Handler<A, B>> DELETE(Handler<A, B> handler) {
+        return methodCase(DELETE, handler);
+    }
+
+    public static <A, B> Tuple2<Method, Handler<A, B>> CONNECT(Handler<A, B> handler) {
+        return methodCase(CONNECT, handler);
+    }
+
+    public static <A, B> Tuple2<Method, Handler<A, B>> OPTIONS(Handler<A, B> handler) {
+        return methodCase(OPTIONS, handler);
+    }
+
+    public static <A, B> Tuple2<Method, Handler<A, B>> TRACE(Handler<A, B> handler) {
+        return methodCase(TRACE, handler);
+    }
+
+    public static <A, B> Tuple2<Method, Handler<A, B>> PATCH(Handler<A, B> handler) {
+        return methodCase(PATCH, handler);
+    }
 
     private Handler<A, B> methodNotAllowed() {
         return request -> {

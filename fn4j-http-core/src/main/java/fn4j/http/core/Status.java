@@ -4,18 +4,31 @@ import io.vavr.collection.LinkedHashSet;
 
 public record Status(StatusCode statusCode,
                      ReasonPhrase reasonPhrase) {
-    public static final Status OK = new Status(new StatusCode(200),
-                                               new ReasonPhrase("OK"));
-    public static final Status NOT_FOUND = new Status(new StatusCode(404),
-                                                      new ReasonPhrase("NOT FOUND"));
-    public static final Status METHOD_NOT_ALLOWED = new Status(new StatusCode(405),
-                                                               new ReasonPhrase("METHOD NOT ALLOWED"));
-    public static final Status INTERNAL_SERVER_ERROR = new Status(new StatusCode(500),
-                                                                  new ReasonPhrase("INTERNAL SERVER ERROR"));
 
-    public static final LinkedHashSet<Status> COMMON_STATUSES =
-            LinkedHashSet.of(OK,
-                             NOT_FOUND,
-                             METHOD_NOT_ALLOWED,
-                             INTERNAL_SERVER_ERROR);
+    public Status(int statusCode,
+                  String reasonPhrase) {
+        this(new StatusCode(statusCode),
+             new ReasonPhrase(reasonPhrase));
+    }
+
+    public Status(StatusCode statusCode) {
+        this(statusCode, COMMON_STATUSES.find(status -> status.statusCode()
+                                                              .equals(statusCode))
+                                        .map(Status::reasonPhrase)
+                                        .getOrElse(new ReasonPhrase("UNCOMMON")));
+    }
+
+    public Status(int statusCode) {
+        this(new StatusCode(statusCode));
+    }
+
+    public static final Status OK = new Status(StatusCode.OK, ReasonPhrase.OK);
+    public static final Status NOT_FOUND = new Status(StatusCode.NOT_FOUND, ReasonPhrase.NOT_FOUND);
+    public static final Status METHOD_NOT_ALLOWED = new Status(StatusCode.METHOD_NOT_ALLOWED, ReasonPhrase.METHOD_NOT_ALLOWED);
+    public static final Status INTERNAL_SERVER_ERROR = new Status(StatusCode.INTERNAL_SERVER_ERROR, ReasonPhrase.INTERNAL_SERVER_ERROR);
+
+    public static final LinkedHashSet<Status> COMMON_STATUSES = LinkedHashSet.of(OK,
+                                                                                 NOT_FOUND,
+                                                                                 METHOD_NOT_ALLOWED,
+                                                                                 INTERNAL_SERVER_ERROR);
 }
