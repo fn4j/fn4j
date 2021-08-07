@@ -1,8 +1,8 @@
 package fn4j.http.server;
 
 import fn4j.http.core.Headers;
+import fn4j.http.core.Path;
 import fn4j.http.core.Request;
-import fn4j.http.core.RequestPath;
 import fn4j.http.core.Response;
 import io.vavr.collection.Seq;
 import io.vavr.concurrent.Future;
@@ -36,7 +36,7 @@ public class PathMatcher<A, B> implements PartialHandler<A, B> {
                         var safe = (Case<A, Object, B>) _case;
                         var handler = safe.handler();
                         return safe.pathExtractor()
-                                   .apply(request.requestUri().path())
+                                   .apply(request.uri().path())
                                    .map(handler)
                                    .toStream();
                     })
@@ -47,7 +47,7 @@ public class PathMatcher<A, B> implements PartialHandler<A, B> {
         return request -> Future.successful(responseHead(NOT_FOUND, Headers.empty()).toResponseWithoutBody());
     }
 
-    public static record Case<A, T, B>(Function<RequestPath, ? extends Option<T>> pathExtractor,
+    public static record Case<A, T, B>(Function<Path, ? extends Option<T>> pathExtractor,
                                        Function<? super T, Handler<A, B>> handler) {
     }
 }

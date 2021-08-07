@@ -13,8 +13,8 @@ public interface Head {
                    HeaderValue headerValue);
 
     default RequestHead toRequestHead(Method method,
-                                      RequestUri requestUri) {
-        return requestHead(method, requestUri, headers());
+                                      Uri uri) {
+        return requestHead(method, uri, headers());
     }
 
     default ResponseHead toResponseHead(Status status) {

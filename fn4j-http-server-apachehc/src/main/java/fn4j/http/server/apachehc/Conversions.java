@@ -29,7 +29,7 @@ public final class Conversions {
 
     public static RequestHead requestHead(HttpRequest httpRequest) {
         return RequestHead.requestHead(new Method(httpRequest.getMethod()),
-                                       new RequestUri(httpRequest.getRequestUri()),
+                                       new Uri(httpRequest.getRequestUri()),
                                        headers(httpRequest.getHeaders()));
     }
 

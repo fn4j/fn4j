@@ -13,21 +13,21 @@ public interface Request<B> extends RequestHead, Message<B> {
     <C> Request<C> mapBody(Function<? super B, ? extends C> mapper);
 
     static <B> Request<B> request(Method method,
-                                  RequestUri requestUri,
+                                  Uri uri,
                                   Headers headers,
                                   Option<Body<B>> maybeBody) {
-        return new Immutable<>(method, requestUri, headers, maybeBody);
+        return new Immutable<>(method, uri, headers, maybeBody);
     }
 
     record Immutable<B>(Method method,
-                        RequestUri requestUri,
+                        Uri uri,
                         Headers headers,
                         Option<Body<B>> maybeBody) implements Request<B> {
         @Override
         public Request<B> addHeader(HeaderName headerName,
                                     HeaderValue headerValue) {
             return new Request.Immutable<>(method,
-                                           requestUri,
+                                           uri,
                                            headers.add(headerName, headerValue),
                                            maybeBody);
         }
@@ -35,7 +35,7 @@ public interface Request<B> extends RequestHead, Message<B> {
         @Override
         public <C> Request<C> mapBody(Function<? super B, ? extends C> mapper) {
             return new Request.Immutable<>(method,
-                                           requestUri,
+                                           uri,
                                            headers,
                                            maybeBody.map(body -> new Body<>(mapper.apply(body.value()))));
         }

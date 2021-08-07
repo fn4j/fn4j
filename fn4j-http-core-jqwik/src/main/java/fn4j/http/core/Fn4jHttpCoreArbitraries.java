@@ -80,6 +80,15 @@ public final class Fn4jHttpCoreArbitraries {
                         .map(Method::new);
     }
 
+    public static Arbitrary<Path> paths() {
+        return strings().alpha()
+                        .numeric()
+                        .list()
+                        .ofMinSize(0)
+                        .ofMaxSize(4)
+                        .map(elements -> new Path("/" + String.join("/", elements)));
+    }
+
     @SuppressWarnings("unchecked")
     public static Arbitrary<ReasonPhrase> reasonPhrases() {
         return Arbitraries.oneOf(commonReasonPhrases(), uncommonReasonPhrases());
@@ -107,40 +116,7 @@ public final class Fn4jHttpCoreArbitraries {
     }
 
     public static Arbitrary<RequestHead> requestHeads() {
-        return heads().flatMap(head -> methods().flatMap(method -> requestUris().map(requestUri -> head.toRequestHead(method, requestUri))));
-    }
-
-    public static Arbitrary<RequestPath> requestPaths() {
-        return requestUris().map(RequestUri::path);
-    }
-
-    public static Arbitrary<RequestUri> requestUris() {
-        return combine(Arbitraries.of("http", "https", "ftp"),
-                       strings().withCharRange('a', 'z')
-                                .ofMinLength(3)
-                                .ofMaxLength(100),
-                       integers().between(1, 65535),
-                       strings().withCharRange('a', 'z')
-                                .ofMinLength(1)
-                                .ofMaxLength(50),
-                       maps(strings().withCharRange('a', 'z')
-                                     .ofMinLength(1)
-                                     .ofMaxLength(10),
-                            strings().alpha()
-                                     .numeric()
-                                     .ofMinLength(1)
-                                     .ofMaxLength(50))
-                               .ofMinSize(0)
-                               .ofMaxSize(5))
-                .as((scheme, hostname, port, path, parameters) -> new RequestUri("%s://%s:%d/%s?%s".formatted(scheme,
-                                                                                                              hostname,
-                                                                                                              port,
-                                                                                                              path,
-                                                                                                              parameters.entrySet()
-                                                                                                                        .stream()
-                                                                                                                        .map(queryParameter -> "%s=%s".formatted(queryParameter.getKey(),
-                                                                                                                                                                 queryParameter.getValue()))
-                                                                                                                        .collect(joining("&")))));
+        return heads().flatMap(head -> methods().flatMap(method -> uris().map(uri -> head.toRequestHead(method, uri))));
     }
 
     public static <B> Arbitrary<Response<B>> responses(Class<B> bodyClass) {
@@ -179,5 +155,32 @@ public final class Fn4jHttpCoreArbitraries {
     public static Arbitrary<StatusCode> uncommonStatusCodes() {
         return integers().between(600, 999)
                          .map(StatusCode::new);
+    }
+
+    public static Arbitrary<Uri> uris() {
+        return combine(Arbitraries.of("http", "https", "ftp"),
+                       strings().withCharRange('a', 'z')
+                                .ofMinLength(3)
+                                .ofMaxLength(100),
+                       integers().between(1, 65535),
+                       paths(),
+                       maps(strings().withCharRange('a', 'z')
+                                     .ofMinLength(1)
+                                     .ofMaxLength(10),
+                            strings().alpha()
+                                     .numeric()
+                                     .ofMinLength(1)
+                                     .ofMaxLength(50))
+                               .ofMinSize(0)
+                               .ofMaxSize(5))
+                .as((scheme, hostname, port, path, parameters) -> new Uri("%s://%s:%d%s?%s".formatted(scheme,
+                                                                                                      hostname,
+                                                                                                      port,
+                                                                                                      path.value(),
+                                                                                                      parameters.entrySet()
+                                                                                                                .stream()
+                                                                                                                .map(queryParameter -> "%s=%s".formatted(queryParameter.getKey(),
+                                                                                                                                                         queryParameter.getValue()))
+                                                                                                                .collect(joining("&")))));
     }
 }

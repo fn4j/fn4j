@@ -17,8 +17,8 @@ public interface Message<B> extends Head {
     <C> Message<C> mapBody(Function<? super B, ? extends C> mapper);
 
     default Request<B> toRequest(Method method,
-                                 RequestUri requestUri) {
-        return request(method, requestUri, headers(), maybeBody());
+                                 Uri uri) {
+        return request(method, uri, headers(), maybeBody());
     }
 
     default Response<B> toResponse(Status status) {

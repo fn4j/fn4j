@@ -7,14 +7,14 @@ import static fn4j.http.core.Request.request;
 public interface RequestHead extends Head {
     Method method();
 
-    RequestUri requestUri();
+    Uri uri();
 
     @Override
     RequestHead addHeader(HeaderName headerName,
                           HeaderValue headerValue);
 
     default <B> Request<B> toRequest(Option<Body<B>> maybeBody) {
-        return request(method(), requestUri(), headers(), maybeBody);
+        return request(method(), uri(), headers(), maybeBody);
     }
 
     default <B> Request<B> toRequest(Body<B> body) {
@@ -26,19 +26,19 @@ public interface RequestHead extends Head {
     }
 
     static RequestHead requestHead(Method method,
-                                   RequestUri requestUri,
+                                   Uri uri,
                                    Headers headers) {
-        return new Immutable(method, requestUri, headers);
+        return new Immutable(method, uri, headers);
     }
 
     record Immutable(Method method,
-                     RequestUri requestUri,
+                     Uri uri,
                      Headers headers) implements RequestHead {
         @Override
         public RequestHead addHeader(HeaderName headerName,
                                      HeaderValue headerValue) {
             return new RequestHead.Immutable(method,
-                                             requestUri,
+                                             uri,
                                              headers.add(headerName, headerValue));
         }
     }

@@ -5,11 +5,12 @@ fn4j.http.core.HeadersArbitraryProvider
 fn4j.http.core.HeaderValueArbitraryProvider
 fn4j.http.core.MessageArbitraryProvider
 fn4j.http.core.MethodArbitraryProvider
+fn4j.http.core.PathArbitraryProvider
 fn4j.http.core.ReasonPhraseArbitraryProvider
 fn4j.http.core.RequestArbitraryProvider
 fn4j.http.core.RequestHeadArbitraryProvider
-fn4j.http.core.RequestUriArbitraryProvider
 fn4j.http.core.ResponseArbitraryProvider
 fn4j.http.core.ResponseHeadArbitraryProvider
 fn4j.http.core.StatusArbitraryProvider
 fn4j.http.core.StatusCodeArbitraryProvider
+fn4j.http.core.UriArbitraryProvider

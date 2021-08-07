@@ -1,8 +1,8 @@
 package fn4j.http.server;
 
 import fn4j.http.core.Method;
+import fn4j.http.core.Path;
 import fn4j.http.core.Request;
-import fn4j.http.core.RequestPath;
 import fn4j.http.core.Response;
 import io.vavr.Function1;
 import io.vavr.Tuple;
@@ -31,7 +31,7 @@ public interface Handler<A, B> extends Function1<Request<A>, Future<Response<B>>
         return new PathMatcher<>(Array.of(cases));
     }
 
-    static <A, T, B> PathMatcher.Case<A, T, B> pathCase(Function<RequestPath, ? extends Option<T>> pathExtractor,
+    static <A, T, B> PathMatcher.Case<A, T, B> pathCase(Function<Path, ? extends Option<T>> pathExtractor,
                                                         Function<? super T, Handler<A, B>> handler) {
         return new PathMatcher.Case<>(pathExtractor, handler);
     }
