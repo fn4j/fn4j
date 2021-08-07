@@ -7,8 +7,8 @@ import fn4j.http.core.Response;
 import io.vavr.Function1;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
-import io.vavr.collection.Array;
 import io.vavr.collection.LinkedHashMap;
+import io.vavr.collection.Stream;
 import io.vavr.concurrent.Future;
 import io.vavr.control.Option;
 
@@ -27,8 +27,9 @@ public interface Handler<A, B> extends Function1<Request<A>, Future<Response<B>>
     }
 
     @SafeVarargs
-    static <A, B> PathMatcher<A, B> matchPath(PathMatcher.Case<A, ?, B>... cases) {
-        return new PathMatcher<>(Array.of(cases));
+    static <A, B> PathMatcher<A, B> matchPath(PathMatcher.Case<A, ?, B> firstCase,
+                                              PathMatcher.Case<A, ?, B>... furtherCases) {
+        return new PathMatcher<>(Stream.of(furtherCases).prepend(firstCase));
     }
 
     static <A, T, B> PathMatcher.Case<A, T, B> pathCase(Function<Path, ? extends Option<T>> pathExtractor,
@@ -37,8 +38,9 @@ public interface Handler<A, B> extends Function1<Request<A>, Future<Response<B>>
     }
 
     @SafeVarargs
-    static <A, B> MethodMatcher<A, B> matchMethod(Tuple2<Method, Handler<A, B>>... cases) {
-        return new MethodMatcher<>(LinkedHashMap.ofEntries(cases));
+    static <A, B> MethodMatcher<A, B> matchMethod(Tuple2<Method, Handler<A, B>> firstCase,
+                                                  Tuple2<Method, Handler<A, B>>... furtherCases) {
+        return new MethodMatcher<>(LinkedHashMap.ofEntries(Stream.of(furtherCases).prepend(firstCase)));
     }
 
     static <A, B> Tuple2<Method, Handler<A, B>> methodCase(Method method,

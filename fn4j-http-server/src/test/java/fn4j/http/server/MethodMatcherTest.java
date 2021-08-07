@@ -1,7 +1,6 @@
 package fn4j.http.server;
 
 import fn4j.http.core.*;
-import io.vavr.Tuple;
 import io.vavr.concurrent.Future;
 import io.vavr.control.Try;
 import net.jqwik.api.Example;
@@ -51,7 +50,7 @@ class MethodMatcherTest {
         }
 
         @Example
-        @Label("should not have method not allowed")
+        @Label("should not have Method Not Allowed")
         <A, B> void shouldNotHaveMethodNotAllowed(@ForAll @WithMethod("DELETE") Request<A> request,
                                                   @ForAll @WithStatus(OK_VALUE) Response<B> response) {
             // given
@@ -104,7 +103,7 @@ class MethodMatcherTest {
         }
 
         @Example
-        @Label("should have method not allowed")
+        @Label("should have Method Not Allowed")
         <A, B> void shouldHaveMethodNotAllowed(@ForAll @WithMethod("PATCH") Request<A> request) {
             // given
             MethodMatcher<A, B> methodMatcher = matchMethod(
@@ -125,54 +124,7 @@ class MethodMatcherTest {
                                       .extracting(Head::headers)
                                       .satisfies(headers -> {
                                           // TODO: fn4j-http-core-assertj
-                                          assertThat(headers.stream()).contains(Tuple.of(ALLOW, new HeaderValue("GET,POST")));
-                                      });
-        }
-    }
-
-    @Label("when empty")
-    static class WhenEmpty {
-
-        @Example
-        @Label("should use other handler")
-        <A, B> void shouldUseOtherHandler(@ForAll Request<A> request,
-                                          @ForAll Response<B> response) {
-            // given
-            MethodMatcher<A, B> methodMatcher = matchMethod();
-            Handler<A, B> handler = methodMatcher.orElse(req -> {
-                assertThat(req).isSameAs(request);
-                return Future.successful(response);
-            });
-
-            // when
-            Future<Response<B>> result = handler.apply(request);
-
-            // then
-            assertThat(result.toTry()).isSuccess()
-                                      .extracting(Try::get)
-                                      .isSameAs(response);
-        }
-
-        @Example
-        @Label("should have method not allowed")
-        <A, B> void shouldHaveMethodNotAllowed(@ForAll Request<A> request) {
-            // given
-            MethodMatcher<A, B> methodMatcher = matchMethod();
-            Handler<A, B> handler = methodMatcher.orMethodNotAllowed();
-
-            // when
-            Future<Response<B>> result = handler.apply(request);
-
-            // then
-            assertThat(result.toTry()).isSuccess()
-                                      .extracting(Try::get)
-                                      .asInstanceOf(RESPONSE)
-                                      .hasStatus(METHOD_NOT_ALLOWED)
-                                      .hasNoBody()
-                                      .extracting(Response::headers)
-                                      .satisfies(headers -> {
-                                          // TODO: fn4j-http-core-assertj
-                                          assertThat(headers.stream()).contains(Tuple.of(ALLOW, new HeaderValue("")));
+                                          assertThat(headers.multimap()).containsEntry(ALLOW, new HeaderValue("GET,POST"));
                                       });
         }
     }

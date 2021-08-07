@@ -1,2 +1,3 @@
 fn4j.http.core.WithMethodConfigurator
 fn4j.http.core.WithStatusConfigurator
+fn4j.http.core.WithUriConfigurator

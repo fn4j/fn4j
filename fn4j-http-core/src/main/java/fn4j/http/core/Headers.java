@@ -7,6 +7,8 @@ import io.vavr.collection.Multimap;
 import io.vavr.collection.Stream;
 
 public interface Headers {
+    Multimap<HeaderName, HeaderValue> multimap();
+
     Stream<Tuple2<HeaderName, HeaderValue>> stream();
 
     Stream<HeaderValue> stream(HeaderName headerName);
@@ -54,6 +56,11 @@ public interface Headers {
     }
 
     record Immutable(Multimap<HeaderName, HeaderValue> value) implements Headers {
+        @Override
+        public Multimap<HeaderName, HeaderValue> multimap() {
+            return value;
+        }
+
         @Override
         public Stream<Tuple2<HeaderName, HeaderValue>> stream() {
             return value.toStream();

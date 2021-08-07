@@ -6,7 +6,7 @@ public interface Fn4jHttpCoreInstanceOfAssertFactories {
     @SuppressWarnings("rawtypes")
     InstanceOfAssertFactory<Response, ResponseAssert<Object>> RESPONSE = response(Object.class);
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({"rawtypes", "unchecked"})
     static <B> InstanceOfAssertFactory<Response, ResponseAssert<B>> response(Class<B> bodyClass) {
         return new InstanceOfAssertFactory<>(Response.class, Fn4jHttpCoreAssertions::<B>assertThat);
     }
