@@ -1,6 +1,6 @@
 package fn4j.http.server.apachehc;
 
-import fn4j.http.*;
+import fn4j.http.core.*;
 import io.vavr.Tuple;
 import io.vavr.collection.Stream;
 import org.apache.hc.core5.http.Header;

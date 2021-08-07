@@ -1,7 +1,7 @@
 package fn4j.http.client;
 
-import fn4j.http.Request;
-import fn4j.http.Response;
+import fn4j.http.core.Request;
+import fn4j.http.core.Response;
 import io.vavr.concurrent.Future;
 
 public interface Client {

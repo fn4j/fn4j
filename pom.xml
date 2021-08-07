@@ -18,15 +18,18 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>fn4j-http</module>
         <module>fn4j-http-client</module>
+        <module>fn4j-http-core</module>
+        <module>fn4j-http-core-jqwik</module>
         <module>fn4j-http-server</module>
         <module>fn4j-http-server-apachehc</module>
+        <module>fn4j-testing</module>
     </modules>
 
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>16</maven.compiler.source>
-        <maven.compiler.target>16</maven.compiler.target>
+        <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
 
         <vavr.version>0.10.4</vavr.version>
 
@@ -39,23 +42,33 @@
         <dependencies>
             <dependency>
                 <groupId>fn4j</groupId>
-                <artifactId>fn4j-http</artifactId>
-                <version>${version}</version>
+                <artifactId>fn4j-http-client</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>fn4j</groupId>
-                <artifactId>fn4j-http-client</artifactId>
-                <version>${version}</version>
+                <artifactId>fn4j-http-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>fn4j</groupId>
+                <artifactId>fn4j-http-core-jqwik</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>fn4j</groupId>
                 <artifactId>fn4j-http-server</artifactId>
-                <version>${version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>fn4j</groupId>
                 <artifactId>fn4j-http-server-apachehc</artifactId>
-                <version>${version}</version>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>fn4j</groupId>
+                <artifactId>fn4j-testing</artifactId>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>
@@ -67,11 +80,6 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>${slf4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-simple</artifactId>
                 <version>${slf4j.version}</version>
             </dependency>
 

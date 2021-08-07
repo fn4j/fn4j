@@ -10,12 +10,12 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>fn4j-http-client</artifactId>
+    <artifactId>fn4j-http-core</artifactId>
 
     <dependencies>
         <dependency>
-            <groupId>fn4j</groupId>
-            <artifactId>fn4j-http-core</artifactId>
+            <groupId>io.vavr</groupId>
+            <artifactId>vavr</artifactId>
         </dependency>
     </dependencies>
 </project>

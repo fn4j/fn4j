@@ -1,0 +1,13 @@
+fn4j.http.core.BodyArbitraryProvider
+fn4j.http.core.HeadArbitraryProvider
+fn4j.http.core.HeaderNameArbitraryProvider
+fn4j.http.core.HeadersArbitraryProvider
+fn4j.http.core.HeaderValueArbitraryProvider
+fn4j.http.core.MessageArbitraryProvider
+fn4j.http.core.MethodArbitraryProvider
+fn4j.http.core.RequestArbitraryProvider
+fn4j.http.core.RequestHeadArbitraryProvider
+fn4j.http.core.RequestUriArbitraryProvider
+fn4j.http.core.ResponseArbitraryProvider
+fn4j.http.core.ResponseHeadArbitraryProvider
+fn4j.http.core.StatusCodeArbitraryProvider

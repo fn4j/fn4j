@@ -15,7 +15,7 @@
     <dependencies>
         <dependency>
             <groupId>fn4j</groupId>
-            <artifactId>fn4j-http</artifactId>
+            <artifactId>fn4j-http-core</artifactId>
         </dependency>
         <dependency>
             <groupId>fn4j</groupId>

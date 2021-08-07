@@ -1,6 +1,6 @@
 package fn4j.http.server;
 
-import fn4j.http.Response;
+import fn4j.http.core.Response;
 import io.vavr.Function1;
 
 import java.util.function.Function;

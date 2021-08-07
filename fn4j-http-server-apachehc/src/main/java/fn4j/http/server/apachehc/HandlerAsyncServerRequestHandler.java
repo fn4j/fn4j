@@ -1,8 +1,8 @@
 package fn4j.http.server.apachehc;
 
-import fn4j.http.Headers;
-import fn4j.http.Response;
-import fn4j.http.StatusCode;
+import fn4j.http.core.Headers;
+import fn4j.http.core.Response;
+import fn4j.http.core.StatusCode;
 import fn4j.http.server.Handler;
 import io.vavr.control.Option;
 import org.apache.hc.core5.http.EntityDetails;
@@ -17,7 +17,7 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 
 import java.io.IOException;
 
-import static fn4j.http.Body.maybeBody;
+import static fn4j.http.core.Body.maybeBody;
 import static fn4j.http.server.apachehc.ApacheHcServer.LOG;
 import static fn4j.http.server.apachehc.Conversions.ApacheHc.asyncResponseProducer;
 import static fn4j.http.server.apachehc.Conversions.requestHead;
