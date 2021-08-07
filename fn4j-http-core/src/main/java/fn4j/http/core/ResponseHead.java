@@ -5,14 +5,14 @@ import io.vavr.control.Option;
 import static fn4j.http.core.Response.response;
 
 public interface ResponseHead extends Head {
-    StatusCode statusCode();
+    Status status();
 
     @Override
     ResponseHead addHeader(HeaderName headerName,
                            HeaderValue headerValue);
 
     default <B> Response<B> toResponse(Option<Body<B>> maybeBody) {
-        return response(statusCode(), headers(), maybeBody);
+        return response(status(), headers(), maybeBody);
     }
 
     default <B> Response<B> toResponse(Body<B> body) {
@@ -23,17 +23,17 @@ public interface ResponseHead extends Head {
         return toResponse(Option.none());
     }
 
-    static ResponseHead responseHead(StatusCode statusCode,
+    static ResponseHead responseHead(Status status,
                                      Headers headers) {
-        return new Immutable(statusCode, headers);
+        return new Immutable(status, headers);
     }
 
-    record Immutable(StatusCode statusCode,
+    record Immutable(Status status,
                      Headers headers) implements ResponseHead {
         @Override
         public ResponseHead addHeader(HeaderName headerName,
                                       HeaderValue headerValue) {
-            return new ResponseHead.Immutable(statusCode,
+            return new ResponseHead.Immutable(status,
                                               headers.add(headerName, headerValue));
         }
     }

@@ -15,7 +15,7 @@ import static fn4j.http.core.Headers.headers;
 import static fn4j.http.core.Method.GET;
 import static fn4j.http.core.Method.HEAD;
 import static fn4j.http.core.ResponseHead.responseHead;
-import static fn4j.http.core.StatusCode.METHOD_NOT_ALLOWED;
+import static fn4j.http.core.Status.METHOD_NOT_ALLOWED;
 import static fn4j.http.server.Handler.methodCase;
 
 public class MethodMatcher<A, B> implements PartialHandler<A, B> {

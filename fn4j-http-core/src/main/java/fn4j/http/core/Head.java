@@ -17,8 +17,8 @@ public interface Head {
         return requestHead(method, requestUri, headers());
     }
 
-    default ResponseHead toResponseHead(StatusCode statusCode) {
-        return responseHead(statusCode, headers());
+    default ResponseHead toResponseHead(Status status) {
+        return responseHead(status, headers());
     }
 
     default <B> Message<B> toMessage(Option<Body<B>> maybeBody) {

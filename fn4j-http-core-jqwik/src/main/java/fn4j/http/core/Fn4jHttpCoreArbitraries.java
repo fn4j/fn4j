@@ -8,7 +8,7 @@ import net.jqwik.api.Arbitrary;
 import java.util.Collection;
 
 import static fn4j.http.core.Method.COMMON_METHODS;
-import static fn4j.http.core.StatusCode.COMMON_STATUS_CODES;
+import static fn4j.http.core.Status.COMMON_STATUSES;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static net.jqwik.api.Arbitraries.*;
@@ -80,6 +80,25 @@ public final class Fn4jHttpCoreArbitraries {
                         .map(Method::new);
     }
 
+    @SuppressWarnings("unchecked")
+    public static Arbitrary<ReasonPhrase> reasonPhrases() {
+        return Arbitraries.oneOf(commonReasonPhrases(), uncommonReasonPhrases());
+    }
+
+    public static Arbitrary<ReasonPhrase> commonReasonPhrases() {
+        return Arbitraries.of(COMMON_STATUSES.toStream()
+                                             .map(Status::reasonPhrase)
+                                             .toJavaList());
+    }
+
+    public static Arbitrary<ReasonPhrase> uncommonReasonPhrases() {
+        return strings().withCharRange('A', 'Z')
+                        .withChars(' ')
+                        .ofMinLength(3)
+                        .ofMaxLength(50)
+                        .map(ReasonPhrase::new);
+    }
+
     public static <B> Arbitrary<Request<B>> requests(Class<B> bodyClass) {
         return combine(requestHeads(),
                        bodies(bodyClass).optional()
@@ -132,7 +151,20 @@ public final class Fn4jHttpCoreArbitraries {
     }
 
     public static Arbitrary<ResponseHead> responseHeads() {
-        return heads().flatMap(head -> statusCodes().map(head::toResponseHead));
+        return heads().flatMap(head -> statuses().map(head::toResponseHead));
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Arbitrary<Status> statuses() {
+        return Arbitraries.oneOf(commonStatuses(), uncommonStatuses());
+    }
+
+    public static Arbitrary<Status> commonStatuses() {
+        return Arbitraries.of(COMMON_STATUSES.toJavaList());
+    }
+
+    public static Arbitrary<Status> uncommonStatuses() {
+        return combine(uncommonStatusCodes(), uncommonReasonPhrases()).as(Status::new);
     }
 
     @SuppressWarnings("unchecked")
@@ -141,12 +173,11 @@ public final class Fn4jHttpCoreArbitraries {
     }
 
     public static Arbitrary<StatusCode> commonStatusCodes() {
-        return Arbitraries.of(COMMON_STATUS_CODES.toJavaList());
+        return Arbitraries.of(COMMON_STATUSES.toStream().map(Status::statusCode).toJavaList());
     }
 
     public static Arbitrary<StatusCode> uncommonStatusCodes() {
-        return integers().between(100, 999)
+        return integers().between(600, 999)
                          .map(StatusCode::new);
     }
-
 }

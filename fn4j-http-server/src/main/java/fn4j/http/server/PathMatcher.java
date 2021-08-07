@@ -11,7 +11,7 @@ import io.vavr.control.Option;
 import java.util.function.Function;
 
 import static fn4j.http.core.ResponseHead.responseHead;
-import static fn4j.http.core.StatusCode.NOT_FOUND;
+import static fn4j.http.core.Status.NOT_FOUND;
 
 public class PathMatcher<A, B> implements PartialHandler<A, B> {
     private final Seq<Case<A, ?, B>> cases;

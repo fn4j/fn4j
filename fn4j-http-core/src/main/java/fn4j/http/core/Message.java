@@ -21,8 +21,8 @@ public interface Message<B> extends Head {
         return request(method, requestUri, headers(), maybeBody());
     }
 
-    default Response<B> toResponse(StatusCode statusCode) {
-        return response(statusCode, headers(), maybeBody());
+    default Response<B> toResponse(Status status) {
+        return response(status, headers(), maybeBody());
     }
 
     static <B> Message<B> message(Headers headers,

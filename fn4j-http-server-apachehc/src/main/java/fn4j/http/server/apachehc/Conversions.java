@@ -37,22 +37,23 @@ public final class Conversions {
         private ApacheHc() {
         }
 
+        public static AsyncResponseProducer asyncResponseProducer(Response<byte[]> response,
+                                                                  ProtocolVersion protocolVersion) {
+            return new BasicResponseProducer(httpResponse(response, protocolVersion),
+                                             response.maybeBody().fold(() -> null,
+                                                                       ApacheHc::asyncEntityProducer));
+        }
+
         public static HttpResponse httpResponse(ResponseHead responseHead,
                                                 ProtocolVersion protocolVersion) {
-            var basicHttpResponse = new BasicHttpResponse(responseHead.statusCode().value());
+            var basicHttpResponse = new BasicHttpResponse(responseHead.status().statusCode().value(),
+                                                          responseHead.status().reasonPhrase().value());
             basicHttpResponse.setVersion(protocolVersion);
             responseHead.headers()
                         .stream()
                         .forEach(headerNameAndValue -> basicHttpResponse.addHeader(headerNameAndValue._1().value(),
                                                                                    headerNameAndValue._2().value()));
             return basicHttpResponse;
-        }
-
-        public static AsyncResponseProducer asyncResponseProducer(Response<byte[]> response,
-                                                                  ProtocolVersion protocolVersion) {
-            return new BasicResponseProducer(httpResponse(response, protocolVersion),
-                                             response.maybeBody().fold(() -> null,
-                                                                       ApacheHc::asyncEntityProducer));
         }
 
         public static AsyncEntityProducer asyncEntityProducer(Body<byte[]> body) {

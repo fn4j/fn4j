@@ -2,7 +2,6 @@ package fn4j.http.server.apachehc;
 
 import fn4j.http.core.Headers;
 import fn4j.http.core.Response;
-import fn4j.http.core.StatusCode;
 import fn4j.http.server.Handler;
 import io.vavr.control.Option;
 import org.apache.hc.core5.http.EntityDetails;
@@ -18,6 +17,7 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 import java.io.IOException;
 
 import static fn4j.http.core.Body.maybeBody;
+import static fn4j.http.core.Status.INTERNAL_SERVER_ERROR;
 import static fn4j.http.server.apachehc.ApacheHcServer.LOG;
 import static fn4j.http.server.apachehc.Conversions.ApacheHc.asyncResponseProducer;
 import static fn4j.http.server.apachehc.Conversions.requestHead;
@@ -45,7 +45,7 @@ public class HandlerAsyncServerRequestHandler implements AsyncServerRequestHandl
         eventualResponse.onComplete(maybeResponse -> {
             var response = maybeResponse.getOrElseGet(error -> {
                 LOG.error(error.getLocalizedMessage(), error);
-                return new Response.Immutable<>(new StatusCode(500), Headers.empty(), Option.none());
+                return new Response.Immutable<>(INTERNAL_SERVER_ERROR, Headers.empty(), Option.none());
             });
 
             try {
