@@ -1,9 +1,9 @@
 package fn4j.http.core;
 
-import io.vavr.Tuple;
 import io.vavr.control.Option;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Arbitrary;
+import net.jqwik.api.Tuple;
 
 import java.util.Collection;
 
@@ -20,8 +20,7 @@ public final class Fn4jHttpCoreArbitraries {
     }
 
     public static <B> Arbitrary<Body<B>> bodies(Class<B> valueClass) {
-        return Arbitraries.forType(valueClass)
-                          .map(Body::new);
+        return forType(valueClass).map(Body::new);
     }
 
     public static Arbitrary<Head> heads() {
@@ -47,7 +46,7 @@ public final class Fn4jHttpCoreArbitraries {
                             .flatMapEach((headerNames, headerName) -> headerValues().list()
                                                                                     .ofMinSize(1)
                                                                                     .ofMaxSize(4)
-                                                                                    .mapEach((headerValues, headerValue) -> Tuple.of(headerName, headerValue)))
+                                                                                    .mapEach((headerValues, headerValue) -> io.vavr.Tuple.of(headerName, headerValue)))
                             .map(lists -> lists.stream()
                                                .flatMap(Collection::stream)
                                                .collect(toList()))
@@ -66,11 +65,11 @@ public final class Fn4jHttpCoreArbitraries {
 
     @SuppressWarnings("unchecked")
     public static Arbitrary<Method> methods() {
-        return Arbitraries.oneOf(commonMethods(), uncommonMethods());
+        return oneOf(commonMethods(), uncommonMethods());
     }
 
     public static Arbitrary<Method> commonMethods() {
-        return Arbitraries.of(COMMON_METHODS.toJavaList());
+        return of(COMMON_METHODS.toJavaList());
     }
 
     public static Arbitrary<Method> uncommonMethods() {
@@ -91,13 +90,13 @@ public final class Fn4jHttpCoreArbitraries {
 
     @SuppressWarnings("unchecked")
     public static Arbitrary<ReasonPhrase> reasonPhrases() {
-        return Arbitraries.oneOf(commonReasonPhrases(), uncommonReasonPhrases());
+        return oneOf(commonReasonPhrases(), uncommonReasonPhrases());
     }
 
     public static Arbitrary<ReasonPhrase> commonReasonPhrases() {
-        return Arbitraries.of(COMMON_STATUSES.toStream()
-                                             .map(Status::reasonPhrase)
-                                             .toJavaList());
+        return of(COMMON_STATUSES.toStream()
+                                 .map(Status::reasonPhrase)
+                                 .toJavaList());
     }
 
     public static Arbitrary<ReasonPhrase> uncommonReasonPhrases() {
@@ -132,11 +131,11 @@ public final class Fn4jHttpCoreArbitraries {
 
     @SuppressWarnings("unchecked")
     public static Arbitrary<Status> statuses() {
-        return Arbitraries.oneOf(commonStatuses(), uncommonStatuses());
+        return oneOf(commonStatuses(), uncommonStatuses());
     }
 
     public static Arbitrary<Status> commonStatuses() {
-        return Arbitraries.of(COMMON_STATUSES.toJavaList());
+        return of(COMMON_STATUSES.toJavaList());
     }
 
     public static Arbitrary<Status> uncommonStatuses() {
@@ -145,11 +144,13 @@ public final class Fn4jHttpCoreArbitraries {
 
     @SuppressWarnings("unchecked")
     public static Arbitrary<StatusCode> statusCodes() {
-        return Arbitraries.oneOf(commonStatusCodes(), uncommonStatusCodes());
+        return oneOf(commonStatusCodes(), uncommonStatusCodes());
     }
 
     public static Arbitrary<StatusCode> commonStatusCodes() {
-        return Arbitraries.of(COMMON_STATUSES.toStream().map(Status::statusCode).toJavaList());
+        return of(COMMON_STATUSES.toStream()
+                                 .map(Status::statusCode)
+                                 .toJavaList());
     }
 
     public static Arbitrary<StatusCode> uncommonStatusCodes() {
@@ -158,11 +159,12 @@ public final class Fn4jHttpCoreArbitraries {
     }
 
     public static Arbitrary<Uri> uris() {
-        return combine(Arbitraries.of("http", "https", "ftp"),
+        return combine(of("http", "https", "ftp"),
                        strings().withCharRange('a', 'z')
                                 .ofMinLength(3)
                                 .ofMaxLength(100),
-                       integers().between(1, 65535),
+                       frequencyOf(Tuple.of(1, Arbitraries.of(80, 443)),
+                                   Tuple.of(1, integers().between(1, 65535))),
                        paths(),
                        maps(strings().withCharRange('a', 'z')
                                      .ofMinLength(1)
@@ -170,17 +172,21 @@ public final class Fn4jHttpCoreArbitraries {
                             strings().alpha()
                                      .numeric()
                                      .ofMinLength(1)
-                                     .ofMaxLength(50))
-                               .ofMinSize(0)
-                               .ofMaxSize(5))
-                .as((scheme, hostname, port, path, parameters) -> new Uri("%s://%s:%d%s?%s".formatted(scheme,
-                                                                                                      hostname,
-                                                                                                      port,
-                                                                                                      path.value(),
-                                                                                                      parameters.entrySet()
-                                                                                                                .stream()
-                                                                                                                .map(queryParameter -> "%s=%s".formatted(queryParameter.getKey(),
-                                                                                                                                                         queryParameter.getValue()))
-                                                                                                                .collect(joining("&")))));
+                                     .ofMaxLength(50)).ofMinSize(0)
+                                                      .ofMaxSize(5)).as((scheme, hostname, port, path, queryParameters) -> {
+            var queryParametersString = queryParameters.entrySet()
+                                                       .stream()
+                                                       .map(queryParameter -> "%s=%s".formatted(queryParameter.getKey(),
+                                                                                                queryParameter.getValue()))
+                                                       .collect(joining("&"));
+            return new Uri("%s://%s:%d%s%s%s".formatted(
+                    scheme,
+                    hostname,
+                    port,
+                    path.value(),
+                    queryParameters.isEmpty() ? "" : "?",
+                    queryParametersString
+            ));
+        });
     }
 }
