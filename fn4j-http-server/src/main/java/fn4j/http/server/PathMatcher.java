@@ -47,7 +47,7 @@ public class PathMatcher<A, B> implements PartialHandler<A, B> {
         return request -> Future.successful(responseHead(NOT_FOUND, Headers.empty()).toResponseWithoutBody());
     }
 
-    public static record Case<A, T, B>(Function<Path, ? extends Option<T>> pathExtractor,
-                                       Function<? super T, Handler<A, B>> handler) {
+    public static record Case<A, P, B>(Function<Path, ? extends Option<P>> pathExtractor,
+                                       Function<? super P, Handler<A, B>> handler) {
     }
 }

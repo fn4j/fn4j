@@ -1,6 +1,7 @@
 package fn4j.http.server;
 
 import fn4j.http.core.*;
+import io.vavr.Tuple;
 import io.vavr.concurrent.Future;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
@@ -17,6 +18,7 @@ import static fn4j.http.core.Status.OK;
 import static fn4j.http.core.StatusCode.OK_VALUE;
 import static fn4j.http.server.Handler.matchPath;
 import static fn4j.http.server.Handler.pathCase;
+import static fn4j.http.server.PathPattern.Root;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.vavr.api.VavrAssertions.assertThat;
@@ -188,6 +190,35 @@ class PathMatcherTest {
                                           // TODO: fn4j-http-core-assertj
                                           assertThat(headers.multimap()).isEmpty();
                                       });
+        }
+    }
+
+    @Label("when used with path patterns")
+    static class WhenUsedWithPathPatterns {
+
+        @Example
+        @Label("should match")
+        <A, B> void shouldMatch(@ForAll @WithUri("http://host/resource/1234") Request<A> request,
+                                @ForAll Response<B> response) {
+            // given
+            Handler<A, B> handler = matchPath(
+                    pathCase(Root.slash("resource"),
+                             __ -> fail("expected not to use handler")),
+                    pathCase(Root.slash("resource").slash("1234"),
+                             pathPar -> (Request<A> req) -> {
+                                 assertThat(pathPar).isEqualTo(Tuple.empty());
+                                 assertThat(req).isSameAs(request);
+                                 return Future.successful(response);
+                             })
+            ).orNotFound();
+
+            // when
+            Future<Response<B>> result = handler.apply(request);
+
+            // then
+            assertThat(result.toTry()).isSuccess()
+                                      .extracting(Try::get)
+                                      .isSameAs(response);
         }
     }
 }
