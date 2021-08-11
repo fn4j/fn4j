@@ -1,6 +1,10 @@
 package fn4j.http.routing;
 
-import fn4j.http.core.*;
+import fn4j.http.core.Request;
+import fn4j.http.core.Response;
+import fn4j.http.core.WithStatus;
+import fn4j.http.core.WithUri;
+import fn4j.net.uri.Path;
 import io.vavr.Tuple;
 import io.vavr.concurrent.Future;
 import io.vavr.control.Option;
@@ -12,13 +16,13 @@ import net.jqwik.api.Label;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static fn4j.http.core.Fn4jHttpCoreInstanceOfAssertFactories.RESPONSE;
-import static fn4j.http.core.Path.ROOT;
 import static fn4j.http.core.Status.NOT_FOUND;
 import static fn4j.http.core.Status.OK;
 import static fn4j.http.core.StatusCode.OK_VALUE;
 import static fn4j.http.routing.Handler.matchPath;
 import static fn4j.http.routing.Handler.pathCase;
 import static fn4j.http.routing.PathPattern.Root;
+import static fn4j.net.uri.Path.EMPTY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.vavr.api.VavrAssertions.assertThat;
@@ -67,19 +71,19 @@ class PathMatcherTest {
             AtomicBoolean markerB = new AtomicBoolean(false);
             PathMatcher<A, B> pathMatcher = matchPath(
                     pathCase(path -> {
-                                 assertThat(path).isEqualTo(ROOT);
+                                 assertThat(path).isEqualTo(EMPTY);
                                  markerA.set(true);
                                  return Option.none();
                              },
                              __ -> fail("expected not to use handler")),
                     pathCase(path -> {
-                                 assertThat(path).isEqualTo(ROOT);
+                                 assertThat(path).isEqualTo(EMPTY);
                                  markerB.set(true);
                                  return Option.none();
                              },
                              __ -> fail("expected not to use handler")),
                     pathCase(path -> {
-                                 assertThat(path).isEqualTo(ROOT);
+                                 assertThat(path).isEqualTo(EMPTY);
                                  return Option.of(pathParameters);
                              },
                              pathPar -> req -> {
@@ -144,7 +148,7 @@ class PathMatcherTest {
             // given
             PathMatcher<A, B> pathMatcher = matchPath(
                     pathCase(path -> {
-                                 assertThat(path).isEqualTo(ROOT);
+                                 assertThat(path).isEqualTo(EMPTY);
                                  return Option.none();
                              },
                              __ -> fail("expected not to use handler"))
@@ -169,7 +173,7 @@ class PathMatcherTest {
             // given
             PathMatcher<A, B> pathMatcher = matchPath(
                     pathCase(path -> {
-                                 assertThat(path).isEqualTo(ROOT);
+                                 assertThat(path).isEqualTo(EMPTY);
                                  return Option.none();
                              },
                              __ -> fail("expected not to use handler"))

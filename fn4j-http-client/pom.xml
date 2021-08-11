@@ -17,5 +17,9 @@
             <groupId>fn4j</groupId>
             <artifactId>fn4j-http-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>fn4j</groupId>
+            <artifactId>fn4j-net-uri</artifactId>
+        </dependency>
     </dependencies>
 </project>

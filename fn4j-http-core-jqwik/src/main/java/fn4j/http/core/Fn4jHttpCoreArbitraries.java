@@ -1,15 +1,13 @@
 package fn4j.http.core;
 
 import io.vavr.control.Option;
-import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Arbitrary;
-import net.jqwik.api.Tuple;
 
 import java.util.Collection;
 
 import static fn4j.http.core.Method.COMMON_METHODS;
 import static fn4j.http.core.Status.COMMON_STATUSES;
-import static java.util.stream.Collectors.joining;
+import static fn4j.net.uri.Fn4jNetUriArbitraries.uris;
 import static java.util.stream.Collectors.toList;
 import static net.jqwik.api.Arbitraries.*;
 import static net.jqwik.api.Combinators.combine;
@@ -77,15 +75,6 @@ public final class Fn4jHttpCoreArbitraries {
                         .ofMinLength(1)
                         .ofMaxLength(10)
                         .map(Method::new);
-    }
-
-    public static Arbitrary<Path> paths() {
-        return strings().alpha()
-                        .numeric()
-                        .list()
-                        .ofMinSize(0)
-                        .ofMaxSize(4)
-                        .map(elements -> new Path("/" + String.join("/", elements)));
     }
 
     @SuppressWarnings("unchecked")
@@ -156,37 +145,5 @@ public final class Fn4jHttpCoreArbitraries {
     public static Arbitrary<StatusCode> uncommonStatusCodes() {
         return integers().between(600, 999)
                          .map(StatusCode::new);
-    }
-
-    public static Arbitrary<Uri> uris() {
-        return combine(of("http", "https", "ftp"),
-                       strings().withCharRange('a', 'z')
-                                .ofMinLength(3)
-                                .ofMaxLength(100),
-                       frequencyOf(Tuple.of(1, Arbitraries.of(80, 443)),
-                                   Tuple.of(1, integers().between(1, 65535))),
-                       paths(),
-                       maps(strings().withCharRange('a', 'z')
-                                     .ofMinLength(1)
-                                     .ofMaxLength(10),
-                            strings().alpha()
-                                     .numeric()
-                                     .ofMinLength(1)
-                                     .ofMaxLength(50)).ofMinSize(0)
-                                                      .ofMaxSize(5)).as((scheme, hostname, port, path, queryParameters) -> {
-            var queryParametersString = queryParameters.entrySet()
-                                                       .stream()
-                                                       .map(queryParameter -> "%s=%s".formatted(queryParameter.getKey(),
-                                                                                                queryParameter.getValue()))
-                                                       .collect(joining("&"));
-            return new Uri("%s://%s:%d%s%s%s".formatted(
-                    scheme,
-                    hostname,
-                    port,
-                    path.value(),
-                    queryParameters.isEmpty() ? "" : "?",
-                    queryParametersString
-            ));
-        });
     }
 }

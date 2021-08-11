@@ -14,6 +14,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>fn4j</groupId>
+            <artifactId>fn4j-net-uri</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>io.vavr</groupId>
             <artifactId>vavr</artifactId>
         </dependency>

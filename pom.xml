@@ -25,6 +25,8 @@
         <module>fn4j-http-routing</module>
         <module>fn4j-http-server</module>
         <module>fn4j-http-server-apachehc</module>
+        <module>fn4j-net-uri</module>
+        <module>fn4j-net-uri-jqwik</module>
         <module>fn4j-testing</module>
     </modules>
 
@@ -70,6 +72,16 @@
             <dependency>
                 <groupId>fn4j</groupId>
                 <artifactId>fn4j-http-server-apachehc</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>fn4j</groupId>
+                <artifactId>fn4j-net-uri</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>fn4j</groupId>
+                <artifactId>fn4j-net-uri-jqwik</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

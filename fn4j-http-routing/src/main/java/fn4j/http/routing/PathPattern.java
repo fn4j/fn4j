@@ -1,16 +1,16 @@
 package fn4j.http.routing;
 
-import fn4j.http.core.Path;
+import fn4j.net.uri.Path;
 import io.vavr.Function1;
 import io.vavr.Tuple;
 import io.vavr.Tuple0;
 import io.vavr.control.Option;
 
-import static fn4j.http.core.Path.ROOT;
+import static fn4j.net.uri.Path.EMPTY;
 
 @FunctionalInterface
 public interface PathPattern<P> extends Function1<Path, Option<P>> {
-    PathPattern<Tuple0> Root = exact(ROOT);
+    PathPattern<Tuple0> Root = exact(EMPTY);
 
     @Override
     default Option<P> apply(Path path) {
@@ -35,8 +35,8 @@ public interface PathPattern<P> extends Function1<Path, Option<P>> {
     static PathPattern<Tuple0> exact(Path path) {
         return actualPath -> actualPath.equals(path) ?
                 new MatchResult.Complete<>(Tuple.empty()) :
-                actualPath.value().startsWith(path.value()) ?
-                        new MatchResult.Partial<>(Tuple.empty(), new Path(actualPath.value().substring(path.value().length()))) :
+                actualPath.encode().startsWith(path.encode()) ?
+                        new MatchResult.Partial<>(Tuple.empty(), new Path(actualPath.encode().substring(path.encode().length()))) :
                         new MatchResult.Failed<>();
     }
 

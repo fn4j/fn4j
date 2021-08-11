@@ -1,9 +1,9 @@
 package fn4j.http.routing;
 
 import fn4j.http.core.Headers;
-import fn4j.http.core.Path;
 import fn4j.http.core.Request;
 import fn4j.http.core.Response;
+import fn4j.net.uri.Path;
 import io.vavr.collection.Seq;
 import io.vavr.concurrent.Future;
 import io.vavr.control.Option;

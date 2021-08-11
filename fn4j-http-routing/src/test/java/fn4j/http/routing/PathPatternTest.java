@@ -1,6 +1,6 @@
 package fn4j.http.routing;
 
-import fn4j.http.core.Path;
+import fn4j.net.uri.Path;
 import io.vavr.Tuple0;
 import io.vavr.control.Option;
 import net.jqwik.api.Example;
@@ -21,7 +21,7 @@ class PathPatternTest {
         Option<Tuple0> result = Root.apply(path);
 
         // then
-        return result.isDefined() == "/".equals(path.value());
+        return result.isDefined() == path.isEmpty();
     }
 
     @Example

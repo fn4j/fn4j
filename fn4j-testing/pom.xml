@@ -15,6 +15,7 @@
     <packaging>pom</packaging>
 
     <properties>
+        <junit.version>5.7.2</junit.version>
         <jqwik.version>1.5.3</jqwik.version>
         <assertj.version>3.20.2</assertj.version>
         <assertj-vavr.version>0.4.2</assertj-vavr.version>
@@ -32,6 +33,11 @@
                 <artifactId>fn4j-http-core-jqwik</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>fn4j</groupId>
+                <artifactId>fn4j-net-uri-jqwik</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.slf4j</groupId>
@@ -40,6 +46,13 @@
             </dependency>
 
             <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>${junit.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
                 <groupId>net.jqwik</groupId>
                 <artifactId>jqwik</artifactId>
                 <version>${jqwik.version}</version>
@@ -47,6 +60,11 @@
             <dependency>
                 <groupId>net.jqwik</groupId>
                 <artifactId>jqwik-api</artifactId>
+                <version>${jqwik.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.jqwik</groupId>
+                <artifactId>jqwik-engine</artifactId>
                 <version>${jqwik.version}</version>
             </dependency>
             <dependency>

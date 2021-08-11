@@ -1,5 +1,6 @@
 package fn4j.http.core;
 
+import fn4j.net.uri.Uri;
 import net.jqwik.api.Arbitrary;
 import net.jqwik.api.configurators.ArbitraryConfiguratorBase;
 import net.jqwik.api.providers.TypeUsage;

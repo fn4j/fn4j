@@ -1,9 +1,9 @@
 package fn4j.http.routing;
 
 import fn4j.http.core.Method;
-import fn4j.http.core.Path;
 import fn4j.http.core.Request;
 import fn4j.http.core.Response;
+import fn4j.net.uri.Path;
 import io.vavr.Function1;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;

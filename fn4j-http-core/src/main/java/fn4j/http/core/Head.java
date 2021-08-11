@@ -1,5 +1,6 @@
 package fn4j.http.core;
 
+import fn4j.net.uri.Uri;
 import io.vavr.control.Option;
 
 import static fn4j.http.core.Message.message;

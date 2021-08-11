@@ -17,6 +17,10 @@
             <groupId>fn4j</groupId>
             <artifactId>fn4j-http-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>fn4j</groupId>
+            <artifactId>fn4j-net-uri</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>fn4j</groupId>
@@ -26,6 +30,11 @@
         <dependency>
             <groupId>fn4j</groupId>
             <artifactId>fn4j-http-core-jqwik</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>fn4j</groupId>
+            <artifactId>fn4j-net-uri-jqwik</artifactId>
             <scope>test</scope>
         </dependency>
 

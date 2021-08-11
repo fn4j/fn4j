@@ -17,6 +17,14 @@
             <groupId>fn4j</groupId>
             <artifactId>fn4j-http-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>fn4j</groupId>
+            <artifactId>fn4j-net-uri</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>fn4j</groupId>
+            <artifactId>fn4j-net-uri-jqwik</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>net.jqwik</groupId>

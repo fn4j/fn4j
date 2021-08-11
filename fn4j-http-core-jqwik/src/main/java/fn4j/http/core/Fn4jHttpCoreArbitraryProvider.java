@@ -20,15 +20,13 @@ public class Fn4jHttpCoreArbitraryProvider implements ArbitraryProvider {
                           entry(HeaderValue.class, __ -> headerValues()),
                           entry(Message.class, targetType -> messages(targetType.getTypeArgument(0).getRawType())),
                           entry(Method.class, __ -> methods()),
-                          entry(Path.class, __ -> paths()),
                           entry(ReasonPhrase.class, __ -> reasonPhrases()),
                           entry(Request.class, targetType -> requests(targetType.getTypeArgument(0).getRawType())),
                           entry(RequestHead.class, __ -> requestHeads()),
                           entry(Response.class, targetType -> responses(targetType.getTypeArgument(0).getRawType())),
                           entry(ResponseHead.class, __ -> responseHeads()),
                           entry(Status.class, __ -> statuses()),
-                          entry(StatusCode.class, __ -> statusCodes()),
-                          entry(Uri.class, __ -> uris()));
+                          entry(StatusCode.class, __ -> statusCodes()));
 
     @Override
     public boolean canProvideFor(TypeUsage targetType) {
