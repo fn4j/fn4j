@@ -1,4 +1,4 @@
-package fn4j.http.server;
+package fn4j.http.routing;
 
 import fn4j.http.core.HeaderValue;
 import fn4j.http.core.Method;
@@ -15,7 +15,7 @@ import static fn4j.http.core.Headers.headers;
 import static fn4j.http.core.Method.*;
 import static fn4j.http.core.ResponseHead.responseHead;
 import static fn4j.http.core.Status.METHOD_NOT_ALLOWED;
-import static fn4j.http.server.Handler.methodCase;
+import static fn4j.http.routing.Handler.methodCase;
 
 public class MethodMatcher<A, B> implements PartialHandler<A, B> {
     private final LinkedHashMap<Method, Handler<A, B>> cases;

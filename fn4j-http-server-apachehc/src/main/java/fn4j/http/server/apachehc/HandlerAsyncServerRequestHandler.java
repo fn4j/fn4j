@@ -1,8 +1,9 @@
 package fn4j.http.server.apachehc;
 
 import fn4j.http.core.Headers;
+import fn4j.http.core.Request;
 import fn4j.http.core.Response;
-import fn4j.http.server.Handler;
+import io.vavr.concurrent.Future;
 import io.vavr.control.Option;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.HttpException;
@@ -15,6 +16,7 @@ import org.apache.hc.core5.http.nio.support.BasicRequestConsumer;
 import org.apache.hc.core5.http.protocol.HttpContext;
 
 import java.io.IOException;
+import java.util.function.Function;
 
 import static fn4j.http.core.Body.maybeBody;
 import static fn4j.http.core.Status.INTERNAL_SERVER_ERROR;
@@ -23,9 +25,9 @@ import static fn4j.http.server.apachehc.Conversions.ApacheHc.asyncResponseProduc
 import static fn4j.http.server.apachehc.Conversions.requestHead;
 
 public class HandlerAsyncServerRequestHandler implements AsyncServerRequestHandler<Message<HttpRequest, byte[]>> {
-    private final Handler<byte[], byte[]> handler;
+    private final Function<? super Request<byte[]>, ? extends Future<Response<byte[]>>> handler;
 
-    public HandlerAsyncServerRequestHandler(Handler<byte[], byte[]> handler) {
+    public HandlerAsyncServerRequestHandler(Function<? super Request<byte[]>, ? extends Future<Response<byte[]>>> handler) {
         this.handler = handler;
     }
 

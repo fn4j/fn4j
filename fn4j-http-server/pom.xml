@@ -17,44 +17,5 @@
             <groupId>fn4j</groupId>
             <artifactId>fn4j-http-core</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>fn4j</groupId>
-            <artifactId>fn4j-http-core-assertj</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>fn4j</groupId>
-            <artifactId>fn4j-http-core-jqwik</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>net.jqwik</groupId>
-            <artifactId>jqwik</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-vavr</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>fn4j</groupId>
-                <artifactId>fn4j-testing</artifactId>
-                <version>${project.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 </project>

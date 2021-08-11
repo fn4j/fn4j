@@ -1,4 +1,4 @@
-package fn4j.http.server;
+package fn4j.http.routing;
 
 import fn4j.http.core.Response;
 import io.vavr.Function1;

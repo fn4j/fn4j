@@ -1,4 +1,4 @@
-package fn4j.http.server;
+package fn4j.http.routing;
 
 import fn4j.http.core.Path;
 import io.vavr.Tuple0;
@@ -8,7 +8,7 @@ import net.jqwik.api.ForAll;
 import net.jqwik.api.Label;
 import net.jqwik.api.Property;
 
-import static fn4j.http.server.PathPattern.Root;
+import static fn4j.http.routing.PathPattern.Root;
 import static org.assertj.vavr.api.VavrAssertions.assertThat;
 
 @Label("Path pattern")

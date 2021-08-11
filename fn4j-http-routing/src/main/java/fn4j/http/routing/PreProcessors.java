@@ -1,4 +1,4 @@
-package fn4j.http.server;
+package fn4j.http.routing;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 

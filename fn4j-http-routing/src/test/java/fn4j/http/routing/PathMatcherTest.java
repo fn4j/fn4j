@@ -1,4 +1,4 @@
-package fn4j.http.server;
+package fn4j.http.routing;
 
 import fn4j.http.core.*;
 import io.vavr.Tuple;
@@ -16,9 +16,9 @@ import static fn4j.http.core.Path.ROOT;
 import static fn4j.http.core.Status.NOT_FOUND;
 import static fn4j.http.core.Status.OK;
 import static fn4j.http.core.StatusCode.OK_VALUE;
-import static fn4j.http.server.Handler.matchPath;
-import static fn4j.http.server.Handler.pathCase;
-import static fn4j.http.server.PathPattern.Root;
+import static fn4j.http.routing.Handler.matchPath;
+import static fn4j.http.routing.Handler.pathCase;
+import static fn4j.http.routing.PathPattern.Root;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.vavr.api.VavrAssertions.assertThat;

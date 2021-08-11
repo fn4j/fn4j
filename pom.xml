@@ -22,6 +22,7 @@
         <module>fn4j-http-core</module>
         <module>fn4j-http-core-assertj</module>
         <module>fn4j-http-core-jqwik</module>
+        <module>fn4j-http-routing</module>
         <module>fn4j-http-server</module>
         <module>fn4j-http-server-apachehc</module>
         <module>fn4j-testing</module>
@@ -55,6 +56,11 @@
                 <groupId>fn4j</groupId>
                 <artifactId>fn4j-http-core-jqwik</artifactId>
                 <version>0.0.1-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>fn4j</groupId>
+                <artifactId>fn4j-http-routing</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>fn4j</groupId>

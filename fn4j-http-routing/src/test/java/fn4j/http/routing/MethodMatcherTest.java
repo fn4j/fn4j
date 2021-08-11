@@ -1,4 +1,4 @@
-package fn4j.http.server;
+package fn4j.http.routing;
 
 import fn4j.http.core.*;
 import io.vavr.concurrent.Future;
@@ -13,8 +13,8 @@ import static fn4j.http.core.Method.POST_VALUE;
 import static fn4j.http.core.Status.METHOD_NOT_ALLOWED;
 import static fn4j.http.core.Status.OK;
 import static fn4j.http.core.StatusCode.OK_VALUE;
-import static fn4j.http.server.Handler.matchMethod;
-import static fn4j.http.server.MethodMatcher.*;
+import static fn4j.http.routing.Handler.matchMethod;
+import static fn4j.http.routing.MethodMatcher.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.vavr.api.VavrAssertions.assertThat;

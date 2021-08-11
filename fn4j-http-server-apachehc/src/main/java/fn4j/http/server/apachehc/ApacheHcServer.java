@@ -1,6 +1,7 @@
 package fn4j.http.server.apachehc;
 
-import fn4j.http.server.Handler;
+import fn4j.http.core.Request;
+import fn4j.http.core.Response;
 import fn4j.http.server.Server;
 import io.vavr.concurrent.Future;
 import io.vavr.concurrent.Promise;
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.SocketAddress;
+import java.util.function.Function;
 
 import static org.apache.hc.core5.http.URIScheme.HTTP;
 import static org.apache.hc.core5.io.CloseMode.GRACEFUL;
@@ -19,9 +21,9 @@ import static org.apache.hc.core5.io.CloseMode.GRACEFUL;
 public class ApacheHcServer implements Server {
     public static final Logger LOG = LoggerFactory.getLogger(ApacheHcServer.class);
 
-    private final Handler<byte[], byte[]> handler;
+    private final Function<? super Request<byte[]>, ? extends Future<Response<byte[]>>> handler;
 
-    public ApacheHcServer(Handler<byte[], byte[]> handler) {
+    public ApacheHcServer(Function<? super Request<byte[]>, ? extends Future<Response<byte[]>>> handler) {
         this.handler = handler;
     }
 
