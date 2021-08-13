@@ -7,6 +7,7 @@ import fn4j.http.core.Response;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.collection.LinkedHashMap;
+import io.vavr.collection.Stream;
 import io.vavr.concurrent.Future;
 import io.vavr.control.Option;
 
@@ -15,13 +16,27 @@ import static fn4j.http.core.Headers.headers;
 import static fn4j.http.core.Method.*;
 import static fn4j.http.core.ResponseHead.responseHead;
 import static fn4j.http.core.Status.METHOD_NOT_ALLOWED;
-import static fn4j.http.routing.Handler.methodCase;
 
 public class MethodMatcher<A, B> implements PartialHandler<A, B> {
     private final LinkedHashMap<Method, Handler<A, B>> cases;
 
     public MethodMatcher(LinkedHashMap<Method, Handler<A, B>> cases) {
         this.cases = cases;
+    }
+
+    @SafeVarargs
+    public static <A, B> MethodMatcher<A, B> matchMethod(Tuple2<Method, Handler<A, B>> firstCase,
+                                                         Tuple2<Method, Handler<A, B>>... furtherCases) {
+        return matchMethod(Stream.of(furtherCases).prepend(firstCase));
+    }
+
+    public static <A, B> MethodMatcher<A, B> matchMethod(Iterable<Tuple2<Method, Handler<A, B>>> cases) {
+        return new MethodMatcher<>(LinkedHashMap.ofEntries(cases));
+    }
+
+    public static <A, B> Tuple2<Method, Handler<A, B>> methodCase(Method method,
+                                                                  Handler<A, B> handler) {
+        return Tuple.of(method, handler);
     }
 
     @Override

@@ -5,6 +5,7 @@ import io.vavr.concurrent.Future;
 import io.vavr.control.Try;
 import net.jqwik.api.Example;
 import net.jqwik.api.ForAll;
+import net.jqwik.api.Group;
 import net.jqwik.api.Label;
 
 import static fn4j.http.core.Fn4jHttpCoreInstanceOfAssertFactories.RESPONSE;
@@ -13,7 +14,6 @@ import static fn4j.http.core.Method.POST_VALUE;
 import static fn4j.http.core.Status.METHOD_NOT_ALLOWED;
 import static fn4j.http.core.Status.OK;
 import static fn4j.http.core.StatusCode.OK_VALUE;
-import static fn4j.http.routing.Handler.matchMethod;
 import static fn4j.http.routing.MethodMatcher.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -23,7 +23,8 @@ import static org.assertj.vavr.api.VavrAssertions.assertThat;
 class MethodMatcherTest {
 
     @Label("when matching")
-    static class WhenMatching {
+    @Group
+    class WhenMatching {
 
         @Example
         @Label("should use matching handler")
@@ -77,7 +78,8 @@ class MethodMatcherTest {
     }
 
     @Label("when not matching")
-    static class WhenNotMatching {
+    @Group
+    class WhenNotMatching {
 
         @Example
         @Label("should use other handler")
