@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.function.Function;
 
 import static fn4j.http.core.Body.maybeBody;
+import static fn4j.http.core.Status.BAD_REQUEST;
 import static fn4j.http.core.Status.INTERNAL_SERVER_ERROR;
 import static fn4j.http.server.apachehc.ApacheHcServer.LOG;
 import static fn4j.http.server.apachehc.Conversions.ApacheHc.asyncResponseProducer;
@@ -42,19 +43,28 @@ public class HandlerAsyncServerRequestHandler implements AsyncServerRequestHandl
     public void handle(Message<HttpRequest, byte[]> message,
                        ResponseTrigger responseTrigger,
                        HttpContext context) {
-        var request = requestHead(message.getHead()).toRequest(maybeBody(message.getBody()));
-        var eventualResponse = handler.apply(request);
-        eventualResponse.onComplete(maybeResponse -> {
-            var response = maybeResponse.getOrElseGet(error -> {
-                LOG.error(error.getLocalizedMessage(), error);
-                return new Response.Immutable<>(INTERNAL_SERVER_ERROR, Headers.empty(), Option.none());
-            });
+        requestHead(message.getHead())
+                .<Future<Response<byte[]>>>fold(
+                        uriError -> {
+                            LOG.debug(uriError.getLocalizedMessage(), uriError);
+                            return Future.successful(new Response.Immutable<>(BAD_REQUEST, Headers.empty(), Option.none()));
+                        },
+                        requestHead -> {
+                            var request = requestHead.toRequest(maybeBody(message.getBody()));
+                            return handler.apply(request);
+                        }
+                )
+                .onComplete(maybeResponse -> {
+                    var response = maybeResponse.getOrElseGet(error -> {
+                        LOG.error(error.getLocalizedMessage(), error);
+                        return new Response.Immutable<>(INTERNAL_SERVER_ERROR, Headers.empty(), Option.none());
+                    });
 
-            try {
-                responseTrigger.submitResponse(asyncResponseProducer(response, context.getProtocolVersion()), context);
-            } catch (HttpException | IOException error) {
-                LOG.error(error.getLocalizedMessage(), error);
-            }
-        });
+                    try {
+                        responseTrigger.submitResponse(asyncResponseProducer(response, context.getProtocolVersion()), context);
+                    } catch (HttpException | IOException error) {
+                        LOG.error(error.getLocalizedMessage(), error);
+                    }
+                });
     }
 }

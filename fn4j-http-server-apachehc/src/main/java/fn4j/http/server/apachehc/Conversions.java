@@ -4,6 +4,7 @@ import fn4j.http.core.*;
 import fn4j.net.uri.Uri;
 import io.vavr.Tuple;
 import io.vavr.collection.Stream;
+import io.vavr.control.Try;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
@@ -28,10 +29,11 @@ public final class Conversions {
                                                              new HeaderValue(header.getValue()))));
     }
 
-    public static RequestHead requestHead(HttpRequest httpRequest) {
-        return RequestHead.requestHead(new Method(httpRequest.getMethod()),
-                                       new Uri(httpRequest.getRequestUri()),
-                                       headers(httpRequest.getHeaders()));
+    public static Try<RequestHead> requestHead(HttpRequest httpRequest) {
+        return Try.of(httpRequest::getUri).map(Uri::new)
+                  .map(uri -> RequestHead.requestHead(new Method(httpRequest.getMethod()),
+                                                      uri,
+                                                      headers(httpRequest.getHeaders())));
     }
 
     public static final class ApacheHc {

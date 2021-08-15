@@ -23,6 +23,7 @@ public record Status(StatusCode statusCode,
     }
 
     public static final Status OK = new Status(StatusCode.OK, ReasonPhrase.OK);
+    public static final Status BAD_REQUEST = new Status(StatusCode.BAD_REQUEST, ReasonPhrase.BAD_REQUEST);
     public static final Status NOT_FOUND = new Status(StatusCode.NOT_FOUND, ReasonPhrase.NOT_FOUND);
     public static final Status METHOD_NOT_ALLOWED = new Status(StatusCode.METHOD_NOT_ALLOWED, ReasonPhrase.METHOD_NOT_ALLOWED);
     public static final Status INTERNAL_SERVER_ERROR = new Status(StatusCode.INTERNAL_SERVER_ERROR, ReasonPhrase.INTERNAL_SERVER_ERROR);

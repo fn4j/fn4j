@@ -6,7 +6,8 @@ import io.vavr.concurrent.Future;
 
 import java.util.function.Function;
 
-@FunctionalInterface
-public interface ServerBuilder {
-    Server build(Function<? super Request<byte[]>, ? extends Future<Response<byte[]>>> handler);
+public interface ServerBuilder<S extends Server, SELF extends ServerBuilder<S, SELF>> {
+    SELF handler(Function<? super Request<byte[]>, ? extends Future<Response<byte[]>>> handler);
+
+    S build();
 }
