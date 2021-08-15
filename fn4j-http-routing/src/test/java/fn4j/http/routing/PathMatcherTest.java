@@ -188,10 +188,7 @@ class PathMatcherTest {
                                       .hasStatus(NOT_FOUND)
                                       .hasNoBody()
                                       .extracting(Response::headers)
-                                      .satisfies(headers -> {
-                                          // TODO: fn4j-http-core-assertj
-                                          assertThat(headers.multimap()).isEmpty();
-                                      });
+                                      .satisfies(headers -> assertThat(headers).isEmpty());
         }
     }
 

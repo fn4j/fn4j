@@ -6,10 +6,12 @@ import io.vavr.collection.HashMultimap;
 import io.vavr.collection.Multimap;
 import io.vavr.collection.Stream;
 
-public interface Headers {
+import java.util.Iterator;
+
+public interface Headers extends Iterable<Tuple2<HeaderName, HeaderValue>> {
     Multimap<HeaderName, HeaderValue> multimap();
 
-    Stream<Tuple2<HeaderName, HeaderValue>> stream();
+    Stream<? extends Tuple2<HeaderName, HeaderValue>> stream();
 
     Stream<HeaderValue> stream(HeaderName headerName);
 
@@ -47,7 +49,7 @@ public interface Headers {
         return headers(Stream.of(headers));
     }
 
-    static Headers headers(Iterable<Tuple2<HeaderName, HeaderValue>> headers) {
+    static Headers headers(Iterable<? extends Tuple2<HeaderName, HeaderValue>> headers) {
         return headers(HashMultimap.withSeq().ofEntries(headers));
     }
 
@@ -94,6 +96,11 @@ public interface Headers {
         @Override
         public Headers remove(Tuple2<HeaderName, HeaderValue> header) {
             return new Immutable(header.apply(value::remove));
+        }
+
+        @Override
+        public Iterator<Tuple2<HeaderName, HeaderValue>> iterator() {
+            return value.iterator();
         }
     }
 }

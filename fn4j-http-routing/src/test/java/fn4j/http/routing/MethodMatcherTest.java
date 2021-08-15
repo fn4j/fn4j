@@ -8,6 +8,7 @@ import net.jqwik.api.ForAll;
 import net.jqwik.api.Group;
 import net.jqwik.api.Label;
 
+import static fn4j.http.core.Fn4jHttpCoreAssertions.assertThat;
 import static fn4j.http.core.Fn4jHttpCoreInstanceOfAssertFactories.RESPONSE;
 import static fn4j.http.core.HeaderName.ALLOW;
 import static fn4j.http.core.Method.POST_VALUE;
@@ -124,10 +125,7 @@ class MethodMatcherTest {
                                       .hasStatus(METHOD_NOT_ALLOWED)
                                       .hasNoBody()
                                       .extracting(Head::headers)
-                                      .satisfies(headers -> {
-                                          // TODO: fn4j-http-core-assertj
-                                          assertThat(headers.multimap()).containsEntry(ALLOW, new HeaderValue("GET,POST"));
-                                      });
+                                      .satisfies(headers -> assertThat(headers).containsEntry(ALLOW, new HeaderValue("GET,POST")));
         }
     }
 }
