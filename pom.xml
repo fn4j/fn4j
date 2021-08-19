@@ -23,6 +23,7 @@
         <module>fn4j-http-core-assertj</module>
         <module>fn4j-http-core-jqwik</module>
         <module>fn4j-http-routing</module>
+        <module>fn4j-http-routing-example</module>
         <module>fn4j-http-server</module>
         <module>fn4j-http-server-apachehc</module>
         <module>fn4j-net-uri</module>

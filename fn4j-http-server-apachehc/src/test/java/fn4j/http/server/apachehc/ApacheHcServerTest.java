@@ -49,7 +49,7 @@ public class ApacheHcServerTest {
             // given
             AtomicBoolean closedMarker = new AtomicBoolean(false);
             Promise<Void> promise = Promise.make();
-            new Thread(() -> closer.awaitClose().onComplete(promise::complete).forEach(__ -> closedMarker.set(true))).start();
+            Future.of(() -> closer.awaitClose().onComplete(promise::complete).onComplete(__ -> closedMarker.set(true)));
 
             // then
             assertThat(closedMarker).isFalse();

@@ -20,6 +20,19 @@ public interface Request<B> extends RequestHead, Message<B> {
         return new Immutable<>(method, uri, headers, maybeBody);
     }
 
+    static <B> Request<B> request(Method method,
+                                  Uri uri,
+                                  Headers headers,
+                                  Body<B> body) {
+        return request(method, uri, headers, Option.of(body));
+    }
+
+    static <B> Request<B> request(Method method,
+                                  Uri uri,
+                                  Headers headers) {
+        return request(method, uri, headers, Option.none());
+    }
+
     record Immutable<B>(Method method,
                         Uri uri,
                         Headers headers,

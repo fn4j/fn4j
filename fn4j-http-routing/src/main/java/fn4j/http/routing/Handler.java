@@ -27,9 +27,9 @@ public interface Handler<A, B> extends Function1<Request<A>, Future<Response<B>>
         return handler;
     }
 
-    static <A, B, C, D> Handler<A, D> wrap(Handler<B, C> handler,
-                                           PreProcessor<A, B> preProcessor,
-                                           BiPostProcessor<A, C, D> biPostProcessor) {
+    static <A, B, C, D> Handler<A, D> wrap(PreProcessor<A, B> preProcessor,
+                                           BiPostProcessor<A, C, D> biPostProcessor,
+                                           Handler<B, C> handler) {
         return request -> handler.apply(preProcessor.apply(request))
                                  .map(response -> biPostProcessor.apply(request, response));
     }

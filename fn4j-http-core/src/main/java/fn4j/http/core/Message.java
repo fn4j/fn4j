@@ -31,6 +31,15 @@ public interface Message<B> extends Head {
         return new Immutable<>(headers, maybeBody);
     }
 
+    static <B> Message<B> message(Headers headers,
+                                  Body<B> body) {
+        return message(headers, Option.of(body));
+    }
+
+    static <B> Message<B> message(Headers headers) {
+        return message(headers, Option.none());
+    }
+
     record Immutable<B>(Headers headers,
                         Option<Body<B>> maybeBody) implements Message<B> {
         @Override

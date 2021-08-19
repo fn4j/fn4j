@@ -3,20 +3,20 @@ package fn4j.net.uri;
 import io.vavr.API;
 import io.vavr.collection.Seq;
 import io.vavr.collection.Stream;
+import io.vavr.collection.Vector;
 import io.vavr.control.Option;
 
 import static fn4j.net.uri.Literal.SLASH;
-import static io.vavr.API.Seq;
 
 public record Path(Seq<PathSegment> pathSegments) implements UriComponentParent {
-    public static final Path EMPTY = new Path(Seq());
+    public static final Path EMPTY = new Path(Vector.empty());
 
     public Path(PathSegment... pathSegments) {
-        this(Stream.of(pathSegments));
+        this(Vector.of(pathSegments));
     }
 
     public Path(Iterable<? extends PathSegment> pathSegments) {
-        this(Stream.ofAll(pathSegments));
+        this(Vector.ofAll(pathSegments));
     }
 
     public Path(String maybeValue) {
@@ -24,7 +24,7 @@ public record Path(Seq<PathSegment> pathSegments) implements UriComponentParent 
                    .<Seq<String>>fold(API::Seq,
                                       value -> Stream.of(value.split("/"))
                                                      .filter(segmentValue -> !segmentValue.isEmpty())
-                                                     .toList())
+                                                     .toVector())
                    .map(PathSegment::new));
     }
 
@@ -33,7 +33,7 @@ public record Path(Seq<PathSegment> pathSegments) implements UriComponentParent 
     }
 
     private static Path concat(Iterable<? extends Path> paths) {
-        return new Path(Stream.ofAll(paths).flatMap(Path::pathSegments));
+        return new Path(Stream.ofAll(paths).flatMap(Path::pathSegments).toVector());
     }
 
     public int length() {
@@ -58,6 +58,10 @@ public record Path(Seq<PathSegment> pathSegments) implements UriComponentParent 
 
     public Path appendAll(Iterable<? extends PathSegment> pathSegments) {
         return new Path(this.pathSegments.appendAll(pathSegments));
+    }
+
+    public Path append(Path path) {
+        return appendAll(path.pathSegments());
     }
 
     public Path drop(int n) {

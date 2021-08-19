@@ -35,8 +35,8 @@ public interface PathPattern<P> extends Function1<Path, Option<P>> {
         return path -> match(path).flatMap(match -> mapper.apply(match._1()).match(path));
     }
 
-    default <A, B> PathMatcher.Case<A, P, B> toCase(Function<? super P, ? extends Handler<A, B>> parameterizedHandler) {
-        return new PathMatcher.Case<>(this, parameterizedHandler);
+    default PathPattern<P> compile() {
+        return this;
     }
 
     static <P> PathPattern<P> of(Function<? super Path, ? extends Option<Tuple2<P, Path>>> pathPattern) {
@@ -45,14 +45,6 @@ public interface PathPattern<P> extends Function1<Path, Option<P>> {
 
     static <P> PathPattern<P> ofFinalizing(Function<? super Path, ? extends Option<P>> pathPattern) {
         return path -> pathPattern.apply(path).map(parameter -> Tuple.of(parameter, EMPTY));
-    }
-
-    static PathSegmentsPattern0 literal(Path path) {
-        return new PathSegmentsPattern0(path.pathSegments().toStream().map(PathPattern::literal));
-    }
-
-    static NotExtractingPathSegmentPattern literal(PathSegment pathSegment) {
-        return pathSegment2 -> Option.when(pathSegment.equals(pathSegment2), Tuple::empty);
     }
 
     static NotExtractingPathPattern ofAll(Iterable<? extends PathPattern<?>> pathPatterns) {
@@ -73,8 +65,19 @@ public interface PathPattern<P> extends Function1<Path, Option<P>> {
         return pathPattern(new PathSegment(pathSegment));
     }
 
+    static PathSegmentsPattern0 pathPattern(Path path) {
+        return new PathSegmentsPattern0(path.pathSegments().toStream().map(PathSegmentLiteral::new));
+    }
+
     static PathSegmentsPattern0 pathPattern(PathSegment pathSegment) {
-        return pathPattern(PathPattern.literal(pathSegment));
+        return pathPattern(new PathSegmentLiteral(pathSegment));
+    }
+
+    record PathSegmentLiteral(PathSegment pathSegment) implements NotExtractingPathSegmentPattern {
+        @Override
+        public Option<Tuple0> matchSegment(PathSegment pathSegment) {
+            return Option.when(this.pathSegment.equals(pathSegment), Tuple::empty);
+        }
     }
 
     static PathSegmentsPattern0 pathPattern(NotExtractingPathPattern notExtractingPathPattern) {
@@ -87,6 +90,11 @@ public interface PathPattern<P> extends Function1<Path, Option<P>> {
 
     @FunctionalInterface
     interface NotExtractingPathPattern extends PathPattern<Tuple0> {
+        @Override
+        default NotExtractingPathPattern compile() {
+            return this;
+        }
+
         static NotExtractingPathPattern of(Function<? super Path, ? extends Option<Tuple2<Tuple0, Path>>> notExtractingPathPattern) {
             return notExtractingPathPattern::apply;
         }
@@ -127,7 +135,7 @@ public interface PathPattern<P> extends Function1<Path, Option<P>> {
         }
 
         default PathSegmentsPattern<P> slash(PathSegment pathSegment) {
-            return slash(PathPattern.literal(pathSegment));
+            return slash(new PathSegmentLiteral(pathSegment));
         }
 
         PathSegmentsPattern<P> slash(NotExtractingPathPattern notExtractingPathPattern);
@@ -142,13 +150,18 @@ public interface PathPattern<P> extends Function1<Path, Option<P>> {
         }
 
         @Override
+        public PathSegmentsPattern0 compile() {
+            return new PathSegmentsPattern0(notExtractingPathPatterns0.map(NotExtractingPathPattern::compile).toVector());
+        }
+
+        @Override
         public PathSegmentsPattern0 slash(String pathSegment) {
             return slash(new PathSegment(pathSegment));
         }
 
         @Override
         public PathSegmentsPattern0 slash(PathSegment pathSegment) {
-            return slash(PathPattern.literal(pathSegment));
+            return slash(new PathSegmentLiteral(pathSegment));
         }
 
         @Override
@@ -180,13 +193,20 @@ public interface PathPattern<P> extends Function1<Path, Option<P>> {
         }
 
         @Override
+        public PathSegmentsPattern1<P1> compile() {
+            return new PathSegmentsPattern1<>(notExtractingPathPatterns0.map(NotExtractingPathPattern::compile).toVector(),
+                                              pathPattern1.compile(),
+                                              notExtractingPathPatterns1.map(NotExtractingPathPattern::compile).toVector());
+        }
+
+        @Override
         public PathSegmentsPattern1<P1> slash(String pathSegment) {
             return slash(new PathSegment(pathSegment));
         }
 
         @Override
         public PathSegmentsPattern1<P1> slash(PathSegment pathSegment) {
-            return slash(PathPattern.literal(pathSegment));
+            return slash(new PathSegmentLiteral(pathSegment));
         }
 
         @Override
@@ -229,13 +249,22 @@ public interface PathPattern<P> extends Function1<Path, Option<P>> {
         }
 
         @Override
+        public PathSegmentsPattern2<P1, P2> compile() {
+            return new PathSegmentsPattern2<>(notExtractingPathPatterns0.map(NotExtractingPathPattern::compile).toVector(),
+                                              pathPattern1.compile(),
+                                              notExtractingPathPatterns1.map(NotExtractingPathPattern::compile).toVector(),
+                                              pathPattern2.compile(),
+                                              notExtractingPathPatterns2.map(NotExtractingPathPattern::compile).toVector());
+        }
+
+        @Override
         public PathSegmentsPattern2<P1, P2> slash(String pathSegment) {
             return slash(new PathSegment(pathSegment));
         }
 
         @Override
         public PathSegmentsPattern2<P1, P2> slash(PathSegment pathSegment) {
-            return slash(PathPattern.literal(pathSegment));
+            return slash(new PathSegmentLiteral(pathSegment));
         }
 
         @Override

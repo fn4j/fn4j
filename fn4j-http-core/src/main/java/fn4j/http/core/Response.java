@@ -18,6 +18,17 @@ public interface Response<B> extends ResponseHead, Message<B> {
         return new Immutable<>(status, headers, maybeBody);
     }
 
+    static <B> Response<B> response(Status status,
+                                    Headers headers,
+                                    Body<B> body) {
+        return response(status, headers, Option.of(body));
+    }
+
+    static <B> Response<B> response(Status status,
+                                    Headers headers) {
+        return response(status, headers, Option.none());
+    }
+
     record Immutable<B>(Status status,
                         Headers headers,
                         Option<Body<B>> maybeBody) implements Response<B> {

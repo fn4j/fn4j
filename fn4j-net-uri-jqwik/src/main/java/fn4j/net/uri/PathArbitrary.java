@@ -20,6 +20,6 @@ public class PathArbitrary extends AbstractSimpleSizeableArbitrary<PathArbitrary
                              .ofMinSize(minSize)
                              .ofMaxSize(maxSize)
                              .withSizeDistribution(sizeDistribution)
-                             .map(strings -> new Path(Array.ofAll(strings)));
+                             .map(pathSegments -> new Path(Array.ofAll(pathSegments)));
     }
 }

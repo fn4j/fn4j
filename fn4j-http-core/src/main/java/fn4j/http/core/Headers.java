@@ -4,6 +4,7 @@ import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.collection.HashMultimap;
 import io.vavr.collection.Multimap;
+import io.vavr.collection.Seq;
 import io.vavr.collection.Stream;
 
 import java.util.Iterator;
@@ -11,9 +12,9 @@ import java.util.Iterator;
 public interface Headers extends Iterable<Tuple2<HeaderName, HeaderValue>> {
     Multimap<HeaderName, HeaderValue> multimap();
 
-    Stream<? extends Tuple2<HeaderName, HeaderValue>> stream();
+    Stream<Tuple2<HeaderName, HeaderValue>> stream();
 
-    Stream<HeaderValue> stream(HeaderName headerName);
+    Seq<HeaderValue> get(HeaderName headerName);
 
     boolean contains(HeaderName headerName);
 
@@ -69,7 +70,7 @@ public interface Headers extends Iterable<Tuple2<HeaderName, HeaderValue>> {
         }
 
         @Override
-        public Stream<HeaderValue> stream(HeaderName headerName) {
+        public Stream<HeaderValue> get(HeaderName headerName) {
             return value.get(headerName).fold(Stream::empty, Stream::ofAll);
         }
 

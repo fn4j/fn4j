@@ -26,12 +26,16 @@ public interface PartialHandler<A, B> extends Function1<Request<A>, Option<Futur
         return partialHandler::apply;
     }
 
-    @SafeVarargs
-    static <A, B> PartialHandler<A, B> firstDefinedOf(PartialHandler<A, B>... partialHandlers) {
-        return firstDefinedOf(Stream.of(partialHandlers));
+    static <A, B> PartialHandler<A, B> of(Option<? extends Handler<A, B>> maybeHandler) {
+        return request -> maybeHandler.map(handler -> handler.apply(request));
     }
 
-    static <A, B> PartialHandler<A, B> firstDefinedOf(Iterable<PartialHandler<A, B>> partialHandlers) {
+    @SafeVarargs
+    static <A, B> PartialHandler<A, B> ofAll(PartialHandler<A, B>... partialHandlers) {
+        return ofAll(Stream.of(partialHandlers));
+    }
+
+    static <A, B> PartialHandler<A, B> ofAll(Iterable<? extends PartialHandler<A, B>> partialHandlers) {
         return request -> Stream.ofAll(partialHandlers)
                                 .flatMap(partialHandler -> partialHandler.apply(request))
                                 .headOption();

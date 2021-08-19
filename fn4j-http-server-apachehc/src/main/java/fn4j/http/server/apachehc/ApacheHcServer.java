@@ -6,7 +6,6 @@ import fn4j.http.server.Server;
 import io.vavr.concurrent.Future;
 import io.vavr.concurrent.Promise;
 import io.vavr.control.Option;
-import io.vavr.control.Try;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncServerBootstrap;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.IOReactorConfig;
@@ -48,15 +47,12 @@ public class ApacheHcServer implements Server {
                                                   .create();
         maybeShutdownAutoCloseMode.forEach(shutdownAutoCloseMode -> getRuntime().addShutdownHook(new Thread(() -> httpAsyncServer.close(shutdownAutoCloseMode))));
         httpAsyncServer.start();
-        var promise = Promise.<Void>make();
-        new Thread(() -> {
-            try {
-                httpAsyncServer.awaitShutdown(TimeValue.MAX_VALUE);
-                promise.complete(Try.success(null));
-            } catch (InterruptedException e) {
-                promise.failure(e);
-            }
-        }).start();
+
+        var promise = Promise.<Void>make().completeWith(Future.of(() -> {
+            httpAsyncServer.awaitShutdown(TimeValue.MAX_VALUE);
+            return null;
+        }));
+
         return Future.fromJavaFuture(httpAsyncServer.listen(inetSocketAddress, HTTP))
                      .map(__ -> new Closer() {
                          @Override

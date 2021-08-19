@@ -2,6 +2,7 @@ package fn4j.http.routing;
 
 import fn4j.http.routing.PathPattern.NotExtractingPathSegmentPattern;
 import fn4j.http.routing.PathPattern.PathSegmentPattern;
+import fn4j.net.uri.Path;
 import io.vavr.Tuple;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
@@ -10,7 +11,13 @@ import java.math.BigInteger;
 import java.util.UUID;
 import java.util.function.Function;
 
+import static fn4j.net.uri.Path.EMPTY;
+
 public interface PathPatterns {
+
+    static PathPattern<Path> wildcard() {
+        return path -> Option.of(Tuple.of(path, EMPTY));
+    }
 
     static NotExtractingPathSegmentPattern anySegment() {
         return __ -> Option.of(Tuple.empty());

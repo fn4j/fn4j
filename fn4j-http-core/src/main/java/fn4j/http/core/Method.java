@@ -2,7 +2,9 @@ package fn4j.http.core;
 
 import io.vavr.collection.LinkedHashSet;
 
-public record Method(String value) {
+import java.util.Comparator;
+
+public record Method(String value) implements Comparable<Method> {
     public static final String GET_VALUE = "GET";
     public static final Method GET = new Method(GET_VALUE);
     public static final String HEAD_VALUE = "HEAD";
@@ -27,4 +29,28 @@ public record Method(String value) {
      */
     public static final LinkedHashSet<Method> COMMON_METHODS =
             LinkedHashSet.of(GET, HEAD, POST, PUT, DELETE, CONNECT, OPTIONS, TRACE, PATCH);
+
+    public static final Comparator<Method> COMMON_FIRST_COMPARATOR = (method1, method2) -> {
+        var method1MaybeIndex = COMMON_METHODS.toStream().indexOfOption(method1);
+        var method2MaybeIndex = COMMON_METHODS.toStream().indexOfOption(method2);
+        return method1MaybeIndex.fold(
+                () -> method2MaybeIndex.fold(
+                        () -> method1.value().compareToIgnoreCase(method2.value()),
+                        method2Index -> 1
+                ),
+                method1Index -> method2MaybeIndex.fold(
+                        () -> -1,
+                        method1Index::compareTo
+                )
+        );
+    };
+
+    public boolean isCommon() {
+        return COMMON_METHODS.contains(this);
+    }
+
+    @Override
+    public int compareTo(Method method) {
+        return COMMON_FIRST_COMPARATOR.compare(this, method);
+    }
 }

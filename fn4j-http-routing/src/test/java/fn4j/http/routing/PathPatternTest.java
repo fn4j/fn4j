@@ -151,8 +151,38 @@ class PathPatternTest {
     }
 
     @Property
-    @Label("should match wildcards")
-    void shouldMatchWildcards(@ForAll Path path) {
+    @Label("should match wildcard")
+    void shouldMatchWildcard(@ForAll Path path) {
+        // given
+        PathSegmentsPattern1<Path> pathPattern = pathPattern(wildcard());
+
+        // when
+        Option<Path> result = pathPattern.apply(path);
+
+        // then
+        assertThat(result).isDefined()
+                          .contains(path);
+    }
+
+    @Property
+    @Label("should match remainder with wildcard")
+    void shouldMatchRemainderWithWildcard(@ForAll Path path1,
+                                          @ForAll Path path2) {
+        // given
+        PathSegmentsPattern1<Path> pathPattern = pathPattern(path1).slash(wildcard());
+        Path path = path1.append(path2);
+
+        // when
+        Option<Path> result = pathPattern.apply(path);
+
+        // then
+        assertThat(result).isDefined()
+                          .contains(path2);
+    }
+
+    @Property
+    @Label("should match any segments")
+    void shouldMatchAnySegments(@ForAll Path path) {
         // given
         PathSegmentsPattern0 pathPattern = pathPattern();
         for (int i = 0; i < path.pathSegments().length(); i++) {

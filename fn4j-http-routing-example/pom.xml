@@ -10,9 +10,17 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>fn4j-http-core</artifactId>
+    <artifactId>fn4j-http-routing-example</artifactId>
 
     <dependencies>
+        <dependency>
+            <groupId>fn4j</groupId>
+            <artifactId>fn4j-http-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>fn4j</groupId>
+            <artifactId>fn4j-http-routing</artifactId>
+        </dependency>
         <dependency>
             <groupId>fn4j</groupId>
             <artifactId>fn4j-net-uri</artifactId>
@@ -24,14 +32,24 @@
         </dependency>
 
         <dependency>
-            <groupId>net.jqwik</groupId>
-            <artifactId>jqwik</artifactId>
+            <groupId>fn4j</groupId>
+            <artifactId>fn4j-http-core-assertj</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 
