@@ -1,9 +1,9 @@
 package fn4j.http.routing.example;
 
+import fn4j.http.answering.Handler;
 import fn4j.http.core.Body;
 import fn4j.http.core.HeaderValue;
 import fn4j.http.core.Headers;
-import fn4j.http.routing.Handler;
 import fn4j.http.routing.PathPattern.PathSegmentPattern;
 import fn4j.http.routing.Route;
 import io.vavr.collection.Seq;

@@ -1,5 +1,7 @@
 package fn4j.http.routing;
 
+import fn4j.http.answering.Handler;
+import fn4j.http.answering.PartialHandler;
 import fn4j.http.core.*;
 import io.vavr.Tuple;
 import io.vavr.collection.*;

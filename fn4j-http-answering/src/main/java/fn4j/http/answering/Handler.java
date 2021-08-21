@@ -1,4 +1,4 @@
-package fn4j.http.routing;
+package fn4j.http.answering;
 
 import fn4j.http.core.Request;
 import fn4j.http.core.Response;

@@ -1,5 +1,6 @@
 package fn4j.http.routing;
 
+import fn4j.http.answering.Handler;
 import fn4j.http.core.HeaderValue;
 import fn4j.http.core.Method;
 import fn4j.http.core.Request;
