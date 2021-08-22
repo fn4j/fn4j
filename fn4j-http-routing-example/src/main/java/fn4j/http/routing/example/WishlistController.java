@@ -2,8 +2,7 @@ package fn4j.http.routing.example;
 
 import fn4j.http.answering.Handler;
 import fn4j.http.core.Body;
-import fn4j.http.core.header.Header;
-import fn4j.http.core.header.HeaderValue;
+import fn4j.http.core.header.BearerAuthenticationHeader;
 import fn4j.http.core.header.Headers;
 import fn4j.http.routing.PathPattern.PathSegmentPattern;
 import fn4j.http.routing.Route;
@@ -18,7 +17,7 @@ import static fn4j.http.core.Method.GET;
 import static fn4j.http.core.Response.response;
 import static fn4j.http.core.Status.OK;
 import static fn4j.http.core.Status.UNAUTHORIZED;
-import static fn4j.http.core.header.HeaderName.AUTHENTICATION;
+import static fn4j.http.core.header.BearerAuthenticationHeader.bearerAuthentication;
 import static fn4j.http.routing.PathPattern.pathPattern;
 import static fn4j.http.routing.PathPatterns.uuidTry;
 import static fn4j.http.routing.Route.route;
@@ -37,11 +36,11 @@ public record WishlistController(AuthenticationService authenticationService,
 
     private Handler<String, String> getWishlistForAuthenticatedUser() {
         return request -> {
-            var maybeAuthenticationHeader = request.headers().get(AUTHENTICATION).singleOption();
-            var maybeAuthenticationHeaderValue = maybeAuthenticationHeader.map(Header::headerValue);
-            var maybeAuthenticationToken = maybeAuthenticationHeaderValue.map(HeaderValue::value);
-            var maybeIdOfAuthenticatedUser = maybeAuthenticationToken.flatMap(authenticationToken -> {
-                return authenticationService.maybeIdOfAuthenticatedUser(authenticationToken, request);
+            var maybeToken = request.headers()
+                                    .getSingle(bearerAuthentication())
+                                    .map(BearerAuthenticationHeader::token);
+            var maybeIdOfAuthenticatedUser = maybeToken.flatMap(token -> {
+                return authenticationService.maybeIdOfAuthenticatedUser(token, request);
             });
             return maybeIdOfAuthenticatedUser.fold(() -> {
                 return Future.successful(response(UNAUTHORIZED, Headers.empty()));

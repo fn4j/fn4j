@@ -24,7 +24,7 @@ class BasicAuthenticationHeaderTest {
     void shouldHaveTuple(@ForAll("usernames") Username username,
                          @ForAll("passwords") Password password) {
         // given
-        var header = new BasicAuthenticationHeader(username, password);
+        BasicAuthenticationHeader header = new BasicAuthenticationHeader(username, password);
 
         // when
         Tuple2<HeaderName, HeaderValue> result = header.tuple();
@@ -54,7 +54,7 @@ class BasicAuthenticationHeaderTest {
 
     @Property
     @Label("should read header value if invalid basic authentication")
-    void shouldReadHeaderValue(@ForAll("invalid basic authentication") HeaderValue headerValue) {
+    void shouldReadHeaderValueIfInvalidBasicAuthentication(@ForAll("invalid basic authentication") HeaderValue headerValue) {
         // given
         Headers headers = headers(new RawHeader(AUTHENTICATION, headerValue));
 

@@ -3,7 +3,8 @@ package fn4j.http.routing.example;
 import fn4j.http.core.Body;
 import fn4j.http.core.Request;
 import fn4j.http.core.Response;
-import fn4j.http.core.header.HeaderValue;
+import fn4j.http.core.header.BearerAuthenticationHeader;
+import fn4j.http.core.header.BearerAuthenticationHeader.Token;
 import fn4j.http.core.header.Headers;
 import fn4j.http.routing.Router;
 import fn4j.net.uri.Uri;
@@ -18,7 +19,6 @@ import static fn4j.http.core.Fn4jHttpCoreAssertions.assertThat;
 import static fn4j.http.core.Method.*;
 import static fn4j.http.core.Request.request;
 import static fn4j.http.core.Status.*;
-import static fn4j.http.core.header.HeaderName.AUTHENTICATION;
 import static fn4j.http.core.header.Headers.headers;
 import static fn4j.http.core.header.LocationHeader.location;
 import static fn4j.http.routing.Router.router;
@@ -176,10 +176,10 @@ class RoutingExampleTest {
         // given
         Request<String> request = request(GET,
                                           new Uri("http://www.example.com/wishlist"),
-                                          headers(Tuple.of(AUTHENTICATION, new HeaderValue("<token>"))));
+                                          headers(new BearerAuthenticationHeader(new Token("<token>"))));
 
         UserId userId = new UserId(UUID.fromString("00000000-0000-0000-0000-000000000001"));
-        given(authenticationService.maybeIdOfAuthenticatedUser("<token>", request)).willReturn(Option.of(userId));
+        given(authenticationService.maybeIdOfAuthenticatedUser(new Token("<token>"), request)).willReturn(Option.of(userId));
         given(wishlistService.wishlistOfUser(userId)).willReturn("<wishlist>");
 
         // when
