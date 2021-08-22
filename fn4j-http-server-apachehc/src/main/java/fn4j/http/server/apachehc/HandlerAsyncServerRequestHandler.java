@@ -1,8 +1,8 @@
 package fn4j.http.server.apachehc;
 
-import fn4j.http.core.Headers;
 import fn4j.http.core.Request;
 import fn4j.http.core.Response;
+import fn4j.http.core.header.Headers;
 import io.vavr.concurrent.Future;
 import io.vavr.control.Option;
 import org.apache.hc.core5.http.EntityDetails;

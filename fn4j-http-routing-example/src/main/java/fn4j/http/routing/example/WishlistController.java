@@ -2,8 +2,9 @@ package fn4j.http.routing.example;
 
 import fn4j.http.answering.Handler;
 import fn4j.http.core.Body;
-import fn4j.http.core.HeaderValue;
-import fn4j.http.core.Headers;
+import fn4j.http.core.header.Header;
+import fn4j.http.core.header.HeaderValue;
+import fn4j.http.core.header.Headers;
 import fn4j.http.routing.PathPattern.PathSegmentPattern;
 import fn4j.http.routing.Route;
 import io.vavr.collection.Seq;
@@ -13,11 +14,11 @@ import io.vavr.control.Try;
 
 import java.util.function.Function;
 
-import static fn4j.http.core.HeaderName.AUTHENTICATION;
 import static fn4j.http.core.Method.GET;
 import static fn4j.http.core.Response.response;
 import static fn4j.http.core.Status.OK;
 import static fn4j.http.core.Status.UNAUTHORIZED;
+import static fn4j.http.core.header.HeaderName.AUTHENTICATION;
 import static fn4j.http.routing.PathPattern.pathPattern;
 import static fn4j.http.routing.PathPatterns.uuidTry;
 import static fn4j.http.routing.Route.route;
@@ -36,7 +37,8 @@ public record WishlistController(AuthenticationService authenticationService,
 
     private Handler<String, String> getWishlistForAuthenticatedUser() {
         return request -> {
-            var maybeAuthenticationHeaderValue = request.headers().get(AUTHENTICATION).singleOption();
+            var maybeAuthenticationHeader = request.headers().get(AUTHENTICATION).singleOption();
+            var maybeAuthenticationHeaderValue = maybeAuthenticationHeader.map(Header::headerValue);
             var maybeAuthenticationToken = maybeAuthenticationHeaderValue.map(HeaderValue::value);
             var maybeIdOfAuthenticatedUser = maybeAuthenticationToken.flatMap(authenticationToken -> {
                 return authenticationService.maybeIdOfAuthenticatedUser(authenticationToken, request);

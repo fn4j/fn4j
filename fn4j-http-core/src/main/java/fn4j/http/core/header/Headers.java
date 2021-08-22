@@ -1,4 +1,4 @@
-package fn4j.http.core;
+package fn4j.http.core.header;
 
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
@@ -6,19 +6,32 @@ import io.vavr.collection.HashMultimap;
 import io.vavr.collection.Multimap;
 import io.vavr.collection.Seq;
 import io.vavr.collection.Stream;
+import io.vavr.control.Option;
 
 import java.util.Iterator;
 
 public interface Headers extends Iterable<Tuple2<HeaderName, HeaderValue>> {
     Multimap<HeaderName, HeaderValue> multimap();
 
-    Stream<Tuple2<HeaderName, HeaderValue>> stream();
+    Stream<? extends Header> stream();
 
-    Seq<HeaderValue> get(HeaderName headerName);
+    Seq<Header> get(HeaderName headerName);
+
+    default <A> Seq<A> get(HeaderReader<A> headerReader) {
+        return get(headerReader.headerName()).flatMap(header -> headerReader.apply(header.headerValue()));
+    }
+
+    default <A> Option<A> getSingle(HeaderReader<A> headerReader) {
+        return get(headerReader).singleOption();
+    }
 
     boolean contains(HeaderName headerName);
 
     boolean contains(Tuple2<HeaderName, HeaderValue> header);
+
+    default boolean contains(Header header) {
+        return contains(header.tuple());
+    }
 
     default boolean contains(HeaderName headerName,
                              HeaderValue headerValue) {
@@ -26,6 +39,10 @@ public interface Headers extends Iterable<Tuple2<HeaderName, HeaderValue>> {
     }
 
     Headers add(Tuple2<HeaderName, HeaderValue> header);
+
+    default Headers add(Header header) {
+        return add(header.tuple());
+    }
 
     default Headers add(HeaderName headerName,
                         HeaderValue headerValue) {
@@ -35,6 +52,10 @@ public interface Headers extends Iterable<Tuple2<HeaderName, HeaderValue>> {
     Headers remove(HeaderName headerName);
 
     Headers remove(Tuple2<HeaderName, HeaderValue> header);
+
+    default Headers remove(Header header) {
+        return remove(header.tuple());
+    }
 
     default Headers remove(HeaderName headerName,
                            HeaderValue headerValue) {
@@ -48,6 +69,10 @@ public interface Headers extends Iterable<Tuple2<HeaderName, HeaderValue>> {
     @SafeVarargs
     static Headers headers(Tuple2<HeaderName, HeaderValue>... headers) {
         return headers(Stream.of(headers));
+    }
+
+    static Headers headers(Header... headers) {
+        return headers(Stream.of(headers).map(Header::tuple));
     }
 
     static Headers headers(Iterable<? extends Tuple2<HeaderName, HeaderValue>> headers) {
@@ -65,13 +90,15 @@ public interface Headers extends Iterable<Tuple2<HeaderName, HeaderValue>> {
         }
 
         @Override
-        public Stream<Tuple2<HeaderName, HeaderValue>> stream() {
-            return value.toStream();
+        public Stream<? extends Header> stream() {
+            return value.toStream().map(RawHeader::new);
         }
 
         @Override
-        public Stream<HeaderValue> get(HeaderName headerName) {
-            return value.get(headerName).fold(Stream::empty, Stream::ofAll);
+        public Stream<Header> get(HeaderName headerName) {
+            return value.get(headerName)
+                        .<Stream<HeaderValue>>fold(Stream::empty, Stream::ofAll)
+                        .map(headerValue -> new RawHeader(headerName, headerValue));
         }
 
         @Override

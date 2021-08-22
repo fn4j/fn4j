@@ -2,14 +2,13 @@ package fn4j.http.routing.example;
 
 import fn4j.http.answering.Handler;
 import fn4j.http.core.Body;
-import fn4j.http.core.HeaderValue;
-import fn4j.http.core.Headers;
 import fn4j.http.core.Request;
+import fn4j.http.core.header.Headers;
+import fn4j.http.core.header.LocationHeader;
 import fn4j.http.routing.PathPattern.PathSegmentPattern;
 import fn4j.http.routing.Route;
 import fn4j.net.uri.Path;
 import fn4j.net.uri.Uri;
-import io.vavr.Tuple;
 import io.vavr.collection.Seq;
 import io.vavr.collection.Stream;
 import io.vavr.concurrent.Future;
@@ -18,11 +17,10 @@ import io.vavr.control.Try;
 
 import java.util.function.Function;
 
-import static fn4j.http.core.HeaderName.LOCATION;
-import static fn4j.http.core.Headers.headers;
 import static fn4j.http.core.Method.*;
 import static fn4j.http.core.Response.response;
 import static fn4j.http.core.Status.*;
+import static fn4j.http.core.header.Headers.headers;
 import static fn4j.http.routing.PathPatterns.uuidTry;
 import static fn4j.http.routing.Route.route;
 import static io.vavr.API.TODO;
@@ -49,7 +47,7 @@ public record UsersController(UserService userService) {
         return request -> {
             var user = userService.createUser(request);
             var userLocation = userLocation(user, request);
-            var locationHeader = Tuple.of(LOCATION, new HeaderValue(userLocation.encode()));
+            var locationHeader = new LocationHeader(userLocation);
             return Future.successful(response(CREATED, headers(locationHeader)));
         };
     }

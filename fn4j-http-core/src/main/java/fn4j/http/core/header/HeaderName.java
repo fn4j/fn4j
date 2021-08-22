@@ -1,4 +1,4 @@
-package fn4j.http.core;
+package fn4j.http.core.header;
 
 public record HeaderName(String value) {
     public static final String ACCEPT_VALUE = "Accept";

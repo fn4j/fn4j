@@ -1,6 +1,10 @@
 package fn4j.http.routing.example;
 
-import fn4j.http.core.*;
+import fn4j.http.core.Body;
+import fn4j.http.core.Request;
+import fn4j.http.core.Response;
+import fn4j.http.core.header.HeaderValue;
+import fn4j.http.core.header.Headers;
 import fn4j.http.routing.Router;
 import fn4j.net.uri.Uri;
 import io.vavr.Tuple;
@@ -11,13 +15,14 @@ import org.junit.jupiter.api.Test;
 import java.util.UUID;
 
 import static fn4j.http.core.Fn4jHttpCoreAssertions.assertThat;
-import static fn4j.http.core.HeaderName.AUTHENTICATION;
-import static fn4j.http.core.HeaderName.LOCATION;
-import static fn4j.http.core.Headers.headers;
 import static fn4j.http.core.Method.*;
 import static fn4j.http.core.Request.request;
 import static fn4j.http.core.Status.*;
+import static fn4j.http.core.header.HeaderName.AUTHENTICATION;
+import static fn4j.http.core.header.Headers.headers;
+import static fn4j.http.core.header.LocationHeader.location;
 import static fn4j.http.routing.Router.router;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.vavr.api.VavrAssertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.same;
@@ -71,7 +76,11 @@ class RoutingExampleTest {
         assertThat(result.toTry()).hasValueSatisfying(response -> {
             assertThat(response).hasStatus(CREATED)
                                 .hasNoBody();
-            assertThat(response.headers()).containsEntry(LOCATION, new HeaderValue("http://www.example.com/admin/users/%3Cuser%3E"));
+
+            var maybeLocationHeader = response.headers().getSingle(location());
+            assertThat(maybeLocationHeader).hasValueSatisfying(locationHeader -> {
+                assertThat(locationHeader.uri()).isEqualTo(new Uri("http://www.example.com/admin/users/%3Cuser%3E"));
+            });
         });
     }
 

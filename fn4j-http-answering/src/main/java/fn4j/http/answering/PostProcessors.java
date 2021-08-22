@@ -1,8 +1,8 @@
 package fn4j.http.answering;
 
-import fn4j.http.core.HeaderValue;
+import fn4j.http.core.header.HeaderValue;
 
-import static fn4j.http.core.HeaderName.CONTENT_TYPE;
+import static fn4j.http.core.header.HeaderName.CONTENT_TYPE;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public interface PostProcessors {

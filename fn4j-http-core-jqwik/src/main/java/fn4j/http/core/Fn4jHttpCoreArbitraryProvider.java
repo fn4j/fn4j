@@ -1,5 +1,8 @@
 package fn4j.http.core;
 
+import fn4j.http.core.header.HeaderName;
+import fn4j.http.core.header.HeaderValue;
+import fn4j.http.core.header.Headers;
 import net.jqwik.api.Arbitrary;
 import net.jqwik.api.providers.ArbitraryProvider;
 import net.jqwik.api.providers.TypeUsage;

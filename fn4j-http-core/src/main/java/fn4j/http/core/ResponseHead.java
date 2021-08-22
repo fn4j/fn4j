@@ -1,5 +1,8 @@
 package fn4j.http.core;
 
+import fn4j.http.core.header.HeaderName;
+import fn4j.http.core.header.HeaderValue;
+import fn4j.http.core.header.Headers;
 import io.vavr.control.Option;
 
 import static fn4j.http.core.Response.response;

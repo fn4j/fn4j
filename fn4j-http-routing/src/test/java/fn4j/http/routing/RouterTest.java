@@ -1,10 +1,10 @@
 package fn4j.http.routing;
 
 import fn4j.http.answering.Handler;
-import fn4j.http.core.HeaderValue;
 import fn4j.http.core.Method;
 import fn4j.http.core.Request;
 import fn4j.http.core.Response;
+import fn4j.http.core.header.HeaderValue;
 import fn4j.net.uri.Path;
 import io.vavr.Tuple;
 import io.vavr.Tuple0;
@@ -22,10 +22,10 @@ import org.assertj.core.api.Assertions;
 import java.util.function.Function;
 
 import static fn4j.http.core.Fn4jHttpCoreAssertions.assertThat;
-import static fn4j.http.core.HeaderName.ALLOW;
 import static fn4j.http.core.Method.COMMON_METHODS;
 import static fn4j.http.core.Status.METHOD_NOT_ALLOWED;
 import static fn4j.http.core.Status.NOT_FOUND;
+import static fn4j.http.core.header.HeaderName.ALLOW;
 import static fn4j.http.routing.Route.route;
 import static fn4j.http.routing.Router.router;
 import static fn4j.net.uri.Path.EMPTY;

@@ -1,6 +1,6 @@
 package fn4j.http.server.apachehc;
 
-import fn4j.http.core.Headers;
+import fn4j.http.core.header.Headers;
 import io.vavr.concurrent.Future;
 import io.vavr.concurrent.Promise;
 import org.junit.jupiter.api.Test;

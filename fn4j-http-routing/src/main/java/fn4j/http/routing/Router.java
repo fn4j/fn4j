@@ -2,7 +2,12 @@ package fn4j.http.routing;
 
 import fn4j.http.answering.Handler;
 import fn4j.http.answering.PartialHandler;
-import fn4j.http.core.*;
+import fn4j.http.core.Method;
+import fn4j.http.core.Request;
+import fn4j.http.core.RequestHead;
+import fn4j.http.core.Response;
+import fn4j.http.core.header.HeaderValue;
+import fn4j.http.core.header.Headers;
 import io.vavr.Tuple;
 import io.vavr.collection.*;
 import io.vavr.concurrent.Future;
@@ -11,11 +16,11 @@ import io.vavr.control.Option;
 
 import java.util.function.Function;
 
-import static fn4j.http.core.HeaderName.ALLOW;
-import static fn4j.http.core.Headers.headers;
 import static fn4j.http.core.Response.response;
 import static fn4j.http.core.Status.METHOD_NOT_ALLOWED;
 import static fn4j.http.core.Status.NOT_FOUND;
+import static fn4j.http.core.header.HeaderName.ALLOW;
+import static fn4j.http.core.header.Headers.headers;
 
 public record Router<A, B>(Seq<Route<?, A, B>> routes) implements Handler<A, B> {
     @SafeVarargs

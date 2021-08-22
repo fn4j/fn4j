@@ -1,5 +1,8 @@
 package fn4j.http.core;
 
+import fn4j.http.core.header.HeaderName;
+import fn4j.http.core.header.HeaderValue;
+import fn4j.http.core.header.Headers;
 import org.assertj.vavr.api.MultimapAssert;
 import org.assertj.vavr.api.VavrAssertions;
 

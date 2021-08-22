@@ -1,6 +1,9 @@
 package fn4j.http.server.apachehc;
 
 import fn4j.http.core.*;
+import fn4j.http.core.header.HeaderName;
+import fn4j.http.core.header.HeaderValue;
+import fn4j.http.core.header.Headers;
 import fn4j.net.uri.Uri;
 import io.vavr.Tuple;
 import io.vavr.collection.Stream;
@@ -54,8 +57,8 @@ public final class Conversions {
             basicHttpResponse.setVersion(protocolVersion);
             responseHead.headers()
                         .stream()
-                        .forEach(headerNameAndValue -> basicHttpResponse.addHeader(headerNameAndValue._1().value(),
-                                                                                   headerNameAndValue._2().value()));
+                        .forEach(header -> basicHttpResponse.addHeader(header.headerName().value(),
+                                                                       header.headerValue().value()));
             return basicHttpResponse;
         }
 
