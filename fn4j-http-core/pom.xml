@@ -12,6 +12,14 @@
 
     <artifactId>fn4j-http-core</artifactId>
 
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub fn4j Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/fn4j/fn4j</url>
+        </repository>
+    </distributionManagement>
+
     <licenses>
         <license>
             <name>Apache License 2.0</name>
