@@ -18,6 +18,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>fn4j-bom</module>
         <module>fn4j-http-answering</module>
         <module>fn4j-http-client</module>
         <module>fn4j-http-core</module>
@@ -29,7 +30,6 @@
         <module>fn4j-http-server-apachehc</module>
         <module>fn4j-net-uri</module>
         <module>fn4j-net-uri-jqwik</module>
-        <module>fn4j-testing</module>
     </modules>
 
     <properties>
@@ -40,86 +40,7 @@
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
         <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
         <maven-javadoc-plugin.version>3.3.0</maven-javadoc-plugin.version>
-
-        <vavr.version>0.10.4</vavr.version>
-
-        <slf4j.version>1.7.30</slf4j.version>
-
-        <apachehc.version>5.1.1</apachehc.version>
     </properties>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>fn4j</groupId>
-                <artifactId>fn4j-http-answering</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>fn4j</groupId>
-                <artifactId>fn4j-http-client</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>fn4j</groupId>
-                <artifactId>fn4j-http-core</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>fn4j</groupId>
-                <artifactId>fn4j-http-core-jqwik</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>fn4j</groupId>
-                <artifactId>fn4j-http-routing</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>fn4j</groupId>
-                <artifactId>fn4j-http-server</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>fn4j</groupId>
-                <artifactId>fn4j-http-server-apachehc</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>fn4j</groupId>
-                <artifactId>fn4j-net-uri</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>fn4j</groupId>
-                <artifactId>fn4j-net-uri-jqwik</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>fn4j</groupId>
-                <artifactId>fn4j-testing</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.vavr</groupId>
-                <artifactId>vavr</artifactId>
-                <version>${vavr.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>${slf4j.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.httpcomponents.core5</groupId>
-                <artifactId>httpcore5-reactive</artifactId>
-                <version>${apachehc.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <build>
         <plugins>

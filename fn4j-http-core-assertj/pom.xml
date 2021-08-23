@@ -44,7 +44,7 @@
         <dependencies>
             <dependency>
                 <groupId>fn4j</groupId>
-                <artifactId>fn4j-testing</artifactId>
+                <artifactId>fn4j-bom</artifactId>
                 <version>${project.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
