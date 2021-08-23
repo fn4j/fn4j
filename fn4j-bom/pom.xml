@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>fn4j</groupId>
+        <groupId>com.github.fn4j.fn4j</groupId>
         <artifactId>fn4j-parent</artifactId>
         <version>0.0.1</version>
     </parent>
@@ -36,52 +36,52 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>fn4j</groupId>
+                <groupId>com.github.fn4j.fn4j</groupId>
                 <artifactId>fn4j-http-answering</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>fn4j</groupId>
+                <groupId>com.github.fn4j.fn4j</groupId>
                 <artifactId>fn4j-http-client</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>fn4j</groupId>
+                <groupId>com.github.fn4j.fn4j</groupId>
                 <artifactId>fn4j-http-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>fn4j</groupId>
+                <groupId>com.github.fn4j.fn4j</groupId>
                 <artifactId>fn4j-http-core-assertj</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>fn4j</groupId>
+                <groupId>com.github.fn4j.fn4j</groupId>
                 <artifactId>fn4j-http-core-jqwik</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>fn4j</groupId>
+                <groupId>com.github.fn4j.fn4j</groupId>
                 <artifactId>fn4j-http-routing</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>fn4j</groupId>
+                <groupId>com.github.fn4j.fn4j</groupId>
                 <artifactId>fn4j-http-server</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>fn4j</groupId>
+                <groupId>com.github.fn4j.fn4j</groupId>
                 <artifactId>fn4j-http-server-apachehc</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>fn4j</groupId>
+                <groupId>com.github.fn4j.fn4j</groupId>
                 <artifactId>fn4j-net-uri</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>fn4j</groupId>
+                <groupId>com.github.fn4j.fn4j</groupId>
                 <artifactId>fn4j-net-uri-jqwik</artifactId>
                 <version>${project.version}</version>
             </dependency>

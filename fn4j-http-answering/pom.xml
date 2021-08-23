@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>fn4j</groupId>
+        <groupId>com.github.fn4j.fn4j</groupId>
         <artifactId>fn4j-parent</artifactId>
         <version>0.0.1</version>
     </parent>
@@ -22,11 +22,11 @@
 
     <dependencies>
         <dependency>
-            <groupId>fn4j</groupId>
+            <groupId>com.github.fn4j.fn4j</groupId>
             <artifactId>fn4j-http-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>fn4j</groupId>
+            <groupId>com.github.fn4j.fn4j</groupId>
             <artifactId>fn4j-net-uri</artifactId>
         </dependency>
     </dependencies>
@@ -34,7 +34,7 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>fn4j</groupId>
+                <groupId>com.github.fn4j.fn4j</groupId>
                 <artifactId>fn4j-bom</artifactId>
                 <version>${project.version}</version>
                 <type>pom</type>
