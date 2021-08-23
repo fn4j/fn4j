@@ -6,7 +6,7 @@
 
     <parent>
         <groupId>fn4j</groupId>
-        <artifactId>fn4j</artifactId>
+        <artifactId>fn4j-parent</artifactId>
         <version>0.0.1</version>
     </parent>
 
