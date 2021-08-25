@@ -85,6 +85,11 @@
                 <artifactId>fn4j-net-uri-jqwik</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.github.fn4j.fn4j</groupId>
+                <artifactId>fn4j-validation</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>io.vavr</groupId>
