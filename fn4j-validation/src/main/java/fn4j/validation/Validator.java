@@ -1,10 +1,23 @@
 package fn4j.validation;
 
-@FunctionalInterface
-public interface Validator<A> {
-    Validation<A> validate(A value);
+import io.vavr.Function1;
 
-    static <A> Validator<A> valid() {
-        return Valid::valid;
+import java.util.function.Function;
+
+@FunctionalInterface
+public interface Validator<A, B> extends Function1<A, Validation<B>> {
+    @Override
+    Validation<B> apply(A value);
+
+    default <C> Validator<A, C> map(Function<? super B, ? extends C> mapper) {
+        return value -> apply(value).map(mapper);
+    }
+
+    default <C> Validator<A, C> mapValidation(Function<? super B, ? extends Validation<C>> mapper) {
+        return value -> apply(value).flatMap(mapper);
+    }
+
+    default <C> Validator<A, C> flatMap(Function<? super B, ? extends Validator<B, C>> mapper) {
+        return a -> apply(a).flatMap(b -> mapper.apply(b).apply(b));
     }
 }
