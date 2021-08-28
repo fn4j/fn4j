@@ -1,5 +1,6 @@
 package fn4j.validation;
 
+import io.vavr.collection.Seq;
 import io.vavr.control.Either;
 
 import java.util.Iterator;
@@ -9,6 +10,11 @@ public record Valid<A>(A value) implements Validation<A> {
     @Override
     public Either<Invalid<A>, Valid<A>> toEither() {
         return Either.right(this);
+    }
+
+    @Override
+    public Either<? extends Seq<? extends Violation>, A> toValuesEither() {
+        return Either.right(value);
     }
 
     @Override

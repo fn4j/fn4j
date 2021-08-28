@@ -17,6 +17,11 @@ public record Invalid<A>(Seq<Violation> violations) implements Validation<A> {
     }
 
     @Override
+    public Either<? extends Seq<? extends Violation>, A> toValuesEither() {
+        return Either.left(violations);
+    }
+
+    @Override
     public <B> Validation<B> map(Function<? super A, ? extends B> mapper) {
         return new Invalid<>(violations);
     }

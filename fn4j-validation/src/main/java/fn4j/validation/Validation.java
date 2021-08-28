@@ -10,9 +10,7 @@ import java.util.function.Function;
 public interface Validation<A> extends Iterable<A> {
     Either<Invalid<A>, Valid<A>> toEither();
 
-    default Either<? extends Seq<? extends Violation>, A> toValuesEither() {
-        return toEither().bimap(Invalid::violations, Valid::value);
-    }
+    Either<? extends Seq<? extends Violation>, A> toValuesEither();
 
     <B> Validation<B> map(Function<? super A, ? extends B> mapper);
 
