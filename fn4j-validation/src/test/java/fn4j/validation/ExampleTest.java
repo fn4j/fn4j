@@ -1,5 +1,6 @@
 package fn4j.validation;
 
+import fn4j.validation.Violation.ThrowableViolation;
 import io.vavr.collection.Stream;
 import net.jqwik.api.Example;
 
@@ -8,6 +9,7 @@ import static fn4j.validation.Validators.*;
 import static fn4j.validation.Violation.key;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.atIndex;
+import static org.assertj.core.api.InstanceOfAssertFactories.type;
 import static org.assertj.vavr.api.VavrAssertions.assertThat;
 
 class ExampleTest {
@@ -45,6 +47,18 @@ class ExampleTest {
         });
         assertThat(Strings.notBlank().validate(" a").toEither()).hasRightValueSatisfying(valid -> {
             assertThat(valid.value()).isEqualTo(" a");
+        });
+        assertThat(Uuids.uuid().validate("<invalid>").toEither()).hasLeftValueSatisfying(invalid -> {
+            assertThat(invalid.violations()).singleElement().satisfies(violation -> {
+                assertThat(violation.key()).isEqualTo(key("fn4j.validation.Validators.Uuids.uuid"));
+                assertThat(violation.movements()).isEmpty();
+                assertThat(violation).isExactlyInstanceOf(ThrowableViolation.class)
+                                     .asInstanceOf(type(ThrowableViolation.class))
+                                     .satisfies(throwableViolation -> {
+                                         assertThat(throwableViolation.throwable()).isExactlyInstanceOf(IllegalArgumentException.class)
+                                                                                   .hasMessage("Invalid UUID string: <invalid>");
+                                     });
+            });
         });
         assertThat(Iterables.notEmpty().validate(java.util.List.of()).toEither()).hasLeftValueSatisfying(invalid -> {
             assertThat(invalid.violations()).singleElement().satisfies(violation -> {

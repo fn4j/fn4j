@@ -6,30 +6,43 @@ import io.vavr.collection.Stream;
 import java.util.function.Function;
 
 public interface Violation {
+    Key key();
+
     Seq<Movement> movements();
 
-    Key key();
+    default String movementsString() {
+        return movements().toStream().map(Movement::value).mkString(".");
+    }
 
     Violation mapMovements(Function<? super Seq<Movement>, ? extends Seq<Movement>> mapper);
 
-    static Violation violation(final Key key) {
-        return violation(Stream.empty(), key);
+    static Violation violation(Key key) {
+        return new PlainViolation(key, Stream.empty());
     }
 
-    static Violation violation(Stream<Movement> movements,
-                               final Key key) {
-        return new Immutable(movements, key);
+    static <T extends Throwable> Violation violation(Key key,
+                                                     T throwable) {
+        return new ThrowableViolation<>(key, Stream.empty(), throwable);
     }
 
     static Key key(String value) {
         return new Key(value);
     }
 
-    record Immutable(Seq<Movement> movements,
-                     Key key) implements Violation {
+    record PlainViolation(Key key,
+                          Seq<Movement> movements) implements Violation {
         @Override
         public Violation mapMovements(Function<? super Seq<Movement>, ? extends Seq<Movement>> mapper) {
-            return new Immutable(mapper.apply(movements), key);
+            return new PlainViolation(key, mapper.apply(movements));
+        }
+    }
+
+    record ThrowableViolation<T extends Throwable>(Key key,
+                                                   Seq<Movement> movements,
+                                                   T throwable) implements Violation {
+        @Override
+        public ThrowableViolation<T> mapMovements(Function<? super Seq<Movement>, ? extends Seq<Movement>> mapper) {
+            return new ThrowableViolation<>(key, mapper.apply(movements), throwable);
         }
     }
 

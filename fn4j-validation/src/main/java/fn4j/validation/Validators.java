@@ -2,6 +2,8 @@ package fn4j.validation;
 
 import io.vavr.collection.Stream;
 
+import java.util.UUID;
+
 import static fn4j.validation.Movement.movement;
 import static fn4j.validation.Validation.invalid;
 import static fn4j.validation.Validation.valid;
@@ -37,6 +39,18 @@ public interface Validators {
     interface Integers {
         static Validator<Integer, Integer> greaterThanOrEqualTo(int other) {
             return Validators.<Integer>notNull().map(value -> value >= other ? valid(value) : invalid(violation(key("fn4j.validation.Validators.Integers.greaterThanOrEqualTo"))));
+        }
+    }
+
+    interface Uuids {
+        static Validator<String, UUID> uuid() {
+            return Validators.<String>notNull().map(string -> {
+                try {
+                    return valid(UUID.fromString(string));
+                } catch (IllegalArgumentException e) {
+                    return invalid(violation(key("fn4j.validation.Validators.Uuids.uuid"), e));
+                }
+            });
         }
     }
 }
