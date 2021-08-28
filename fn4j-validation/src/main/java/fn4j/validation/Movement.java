@@ -7,6 +7,10 @@ public interface Movement {
         return new Immutable(name);
     }
 
+    static Name name(String value) {
+        return new Name(value);
+    }
+
     record Immutable(Name name) implements Movement {
     }
 

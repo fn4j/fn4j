@@ -21,6 +21,10 @@ public interface Violation {
         return new Immutable(movements, key);
     }
 
+    static Key key(String value) {
+        return new Key(value);
+    }
+
     record Immutable(Seq<Movement> movements,
                      Key key) implements Violation {
         @Override

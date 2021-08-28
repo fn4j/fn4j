@@ -1,6 +1,8 @@
 package fn4j.validation;
 
 import io.vavr.Function1;
+import io.vavr.collection.Seq;
+import io.vavr.collection.Stream;
 
 import java.util.function.Function;
 
@@ -15,5 +17,19 @@ public interface Validator<A, B> extends Function1<ValidationCursor<A>, Validati
 
     default <C> Validator<A, C> mapValidation(Function<? super B, ? extends Validation<C>> mapper) {
         return value -> apply(value).flatMap(mapper);
+    }
+
+    default Validator<A, B> registerManualCursorMovement(Movement... movements) {
+        return registerManualCursorMovement(Stream.of(movements));
+    }
+
+    default Validator<A, B> registerManualCursorMovement(Seq<Movement> movements) {
+        return cursor -> apply(cursor).mapInvalid(invalid -> {
+            return new Invalid<>(invalid.violations().map(violation -> {
+                return violation.mapMovements(followingMovements -> {
+                    return followingMovements.appendAll(movements);
+                });
+            }));
+        });
     }
 }
