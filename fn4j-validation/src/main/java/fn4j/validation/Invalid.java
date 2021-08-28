@@ -7,6 +7,10 @@ import java.util.Iterator;
 import java.util.function.Function;
 
 public record Invalid<A>(Seq<Violation> violations) implements Validation<A> {
+    public Invalid<A> mapViolations(Function<? super Seq<Violation>, ? extends Seq<Violation>> mapper) {
+        return new Invalid<>(mapper.apply(violations));
+    }
+
     @Override
     public Either<Invalid<A>, Valid<A>> toEither() {
         return Either.left(this);

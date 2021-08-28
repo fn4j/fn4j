@@ -8,13 +8,9 @@ import java.util.function.Function;
 public interface Violation {
     Key key();
 
-    Seq<Movement> movements();
+    Seq<String> path();
 
-    default String movementsString() {
-        return movements().toStream().map(Movement::value).mkString(".");
-    }
-
-    Violation mapMovements(Function<? super Seq<Movement>, ? extends Seq<Movement>> mapper);
+    Violation mapPath(Function<? super Seq<String>, ? extends Seq<String>> mapper);
 
     static Violation violation(Key key) {
         return new PlainViolation(key, Stream.empty());
@@ -30,19 +26,19 @@ public interface Violation {
     }
 
     record PlainViolation(Key key,
-                          Seq<Movement> movements) implements Violation {
+                          Seq<String> path) implements Violation {
         @Override
-        public Violation mapMovements(Function<? super Seq<Movement>, ? extends Seq<Movement>> mapper) {
-            return new PlainViolation(key, mapper.apply(movements));
+        public Violation mapPath(Function<? super Seq<String>, ? extends Seq<String>> mapper) {
+            return new PlainViolation(key, mapper.apply(path));
         }
     }
 
     record ThrowableViolation<T extends Throwable>(Key key,
-                                                   Seq<Movement> movements,
+                                                   Seq<String> path,
                                                    T throwable) implements Violation {
         @Override
-        public ThrowableViolation<T> mapMovements(Function<? super Seq<Movement>, ? extends Seq<Movement>> mapper) {
-            return new ThrowableViolation<>(key, mapper.apply(movements), throwable);
+        public ThrowableViolation<T> mapPath(Function<? super Seq<String>, ? extends Seq<String>> mapper) {
+            return new ThrowableViolation<>(key, mapper.apply(path), throwable);
         }
     }
 

@@ -4,7 +4,6 @@ import io.vavr.collection.Stream;
 
 import java.util.UUID;
 
-import static fn4j.validation.Movement.movement;
 import static fn4j.validation.Validation.invalid;
 import static fn4j.validation.Validation.valid;
 import static fn4j.validation.Violation.key;
@@ -24,7 +23,7 @@ public interface Validators {
             return Validators.<I>notNull().map(iterable -> Validation.ofAll(iterable, Stream.ofAll(iterable).zipWithIndex().map(elementAndIndex -> {
                 var element = elementAndIndex._1();
                 var index = elementAndIndex._2();
-                return elementValidator.manualMove(movement("[" + index + ']')).apply(element);
+                return elementValidator.withName("[" + index + ']').apply(element);
             })));
         }
     }
