@@ -13,7 +13,7 @@ public interface Validators {
 
     interface Iterables {
         static <A extends Iterable<?>> Validator<A, A> notEmpty() {
-            return Validators.<A>notNull().mapValidation(iterable -> iterable.iterator().hasNext() ? valid(iterable) : invalid(violation(new Violation.Key(""))));
+            return Validators.<A>notNull().mapValidation(iterable -> iterable.iterator().hasNext() ? valid(iterable) : invalid(violation(new Violation.Key("fn4j.validation.Validators.Iterables.notEmpty"))));
         }
 
         static <I extends Iterable<A>, A> Validator<I, I> each(Validator<A, A> elementValidator) {

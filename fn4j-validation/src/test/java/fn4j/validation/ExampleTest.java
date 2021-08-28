@@ -39,9 +39,19 @@ class ExampleTest {
         assertThat(Strings.notBlank().validate(" a").toEither()).hasRightValueSatisfying(valid -> {
             assertThat(valid.value()).isEqualTo(" a");
         });
-        assertThat(Iterables.notEmpty().validate(java.util.List.of()).toEither()).isLeft();
+        assertThat(Iterables.notEmpty().validate(java.util.List.of()).toEither()).hasLeftValueSatisfying(invalid -> {
+            assertThat(invalid.violations()).singleElement().satisfies(violation -> {
+                assertThat(violation.movements()).isEmpty();
+                assertThat(violation.key()).isEqualTo(new Violation.Key("fn4j.validation.Validators.Iterables.notEmpty"));
+            });
+        });
         assertThat(Iterables.notEmpty().validate(java.util.List.of("")).toEither()).isRight();
-        assertThat(Iterables.notEmpty().validate(io.vavr.collection.Stream.empty()).toEither()).isLeft();
+        assertThat(Iterables.notEmpty().validate(io.vavr.collection.Stream.empty()).toEither()).hasLeftValueSatisfying(invalid -> {
+            assertThat(invalid.violations()).singleElement().satisfies(violation -> {
+                assertThat(violation.movements()).isEmpty();
+                assertThat(violation.key()).isEqualTo(new Violation.Key("fn4j.validation.Validators.Iterables.notEmpty"));
+            });
+        });
         assertThat(Iterables.notEmpty().validate(io.vavr.collection.Stream.of("")).toEither()).isRight();
         assertThat(Iterables.each(Strings.notBlank()).validate(Stream.of("a", "")).toEither()).isLeft();
         assertThat(Iterables.each(Strings.notBlank()).validate(Stream.of("a", "b")).toEither()).isRight();
