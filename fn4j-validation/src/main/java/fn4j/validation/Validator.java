@@ -15,8 +15,12 @@ public interface Validator<A, B> extends Function1<A, Validation<B>> {
         return value -> apply(value).flatMap(mapper);
     }
 
+    default Validator<A, B> mapInvalid(Function<Invalid<B>, Invalid<B>> mapper) {
+        return value -> apply(value).mapInvalid(mapper);
+    }
+
     default Validator<A, B> withName(String name) {
-        return value -> apply(value).mapInvalid(invalid -> {
+        return mapInvalid(invalid -> {
             return invalid.mapViolations(violations -> {
                 return violations.map(violation -> {
                     return violation.mapPath(elements -> elements.prepend(name));

@@ -3,6 +3,8 @@ package fn4j.validation;
 import io.vavr.collection.Stream;
 
 import java.util.UUID;
+import java.util.regex.MatchResult;
+import java.util.regex.Pattern;
 
 import static fn4j.validation.Validation.invalid;
 import static fn4j.validation.Validation.valid;
@@ -32,10 +34,21 @@ public interface Validators {
         static Validator<String, String> notBlank() {
             return Validators.<String>notNull().map(value -> !value.trim().isEmpty() ? valid(value) : invalid(violation(key("fn4j.validation.Validators.Strings.notBlank"))));
         }
+
+        static Validator<String, MatchResult> pattern(String pattern) {
+            return pattern(Pattern.compile(pattern));
+        }
+
+        static Validator<String, MatchResult> pattern(Pattern pattern) {
+            return string -> {
+                var matcher = pattern.matcher(string);
+                return matcher.matches() ? valid(matcher.toMatchResult()) : invalid(violation(key("fn4j.validation.Validators.Strings.match")));
+            };
+        }
     }
 
     interface Integers {
-        static Validator<Integer, Integer> greaterThanOrEqualTo(int other) {
+        static Validator<Integer, Integer> min(int other) {
             return Validators.<Integer>notNull().map(value -> value >= other ? valid(value) : invalid(violation(key("fn4j.validation.Validators.Integers.greaterThanOrEqualTo"))));
         }
     }
