@@ -8,7 +8,6 @@ import io.vavr.collection.Stream;
 import java.util.function.Function;
 
 import static fn4j.validation.Movement.movement;
-import static fn4j.validation.Movement.name;
 
 @FunctionalInterface
 public interface Validator<A, B> extends Function1<A, Validation<B>> {
@@ -19,15 +18,15 @@ public interface Validator<A, B> extends Function1<A, Validation<B>> {
         return apply(value);
     }
 
-    default <C> Validator<A, C> mapValidation(Function<? super B, ? extends Validation<C>> mapper) {
+    default <C> Validator<A, C> map(Function<? super B, ? extends Validation<C>> mapper) {
         return value -> apply(value).flatMap(mapper);
     }
 
-    default Validator<A, B> registerManualMovement(Movement... movements) {
-        return registerManualMovement(Stream.of(movements));
+    default Validator<A, B> manualMove(Movement... movements) {
+        return manualMove(Stream.of(movements));
     }
 
-    default Validator<A, B> registerManualMovement(Seq<Movement> movements) {
+    default Validator<A, B> manualMove(Seq<Movement> movements) {
         return value -> apply(value).mapInvalid(invalid -> {
             return new Invalid<>(invalid.violations().map(violation -> {
                 return violation.mapMovements(followingMovements -> {
@@ -39,12 +38,12 @@ public interface Validator<A, B> extends Function1<A, Validation<B>> {
 
     default <C> Validator<C, B> move(String movement,
                                      Function<? super C, ? extends A> mover) {
-        return move(movement(name(movement)), mover);
+        return move(movement(movement), mover);
     }
 
     default <C> Validator<C, B> move(Movement movement,
                                      Function<? super C, ? extends A> mover) {
-        return ((Validator<C, B>) value -> validate(mover.apply(value))).registerManualMovement(movement);
+        return ((Validator<C, B>) value -> validate(mover.apply(value))).manualMove(movement);
     }
 
     @SafeVarargs

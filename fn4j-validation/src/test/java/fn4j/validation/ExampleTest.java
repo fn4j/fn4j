@@ -3,7 +3,7 @@ package fn4j.validation;
 import io.vavr.collection.Stream;
 import net.jqwik.api.Example;
 
-import static fn4j.validation.Movement.name;
+import static fn4j.validation.Movement.movement;
 import static fn4j.validation.Validators.*;
 import static fn4j.validation.Violation.key;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -67,7 +67,7 @@ class ExampleTest {
         assertThat(Iterables.each(Strings.notBlank()).validate(Stream.of("a", "")).toEither()).hasLeftValueSatisfying(invalid -> {
             assertThat(invalid.violations()).singleElement().satisfies(violation -> {
                 assertThat(violation.movements()).singleElement().satisfies(movement -> {
-                    assertThat(movement.name()).isEqualTo(name("[1]"));
+                    assertThat(movement).isEqualTo(movement("[1]"));
                 });
                 assertThat(violation.key()).isEqualTo(key("fn4j.validation.Validators.Strings.notBlank"));
             });
@@ -75,12 +75,12 @@ class ExampleTest {
         assertThat(Iterables.each(Strings.notBlank()).validate(Stream.of("", "")).toEither()).hasLeftValueSatisfying(invalid -> {
             assertThat(invalid.violations()).hasSize(2).satisfies(violation -> {
                 assertThat(violation.movements()).singleElement().satisfies(movement -> {
-                    assertThat(movement.name()).isEqualTo(name("[0]"));
+                    assertThat(movement).isEqualTo(movement("[0]"));
                 });
                 assertThat(violation.key()).isEqualTo(key("fn4j.validation.Validators.Strings.notBlank"));
             }, atIndex(0)).satisfies(violation -> {
                 assertThat(violation.movements()).singleElement().satisfies(movement -> {
-                    assertThat(movement.name()).isEqualTo(name("[1]"));
+                    assertThat(movement).isEqualTo(movement("[1]"));
                 });
                 assertThat(violation.key()).isEqualTo(key("fn4j.validation.Validators.Strings.notBlank"));
             }, atIndex(1));
@@ -91,7 +91,7 @@ class ExampleTest {
         assertThat(SumType.VALIDATOR.validate(new SumType("", 4)).toEither()).hasLeftValueSatisfying(invalid -> {
             assertThat(invalid.violations()).singleElement().satisfies(violation -> {
                 assertThat(violation.movements()).singleElement().satisfies(movement -> {
-                    assertThat(movement.name()).isEqualTo(name("a"));
+                    assertThat(movement).isEqualTo(movement("a"));
                 });
                 assertThat(violation.key()).isEqualTo(key("fn4j.validation.Validators.Strings.notBlank"));
             });
@@ -99,7 +99,7 @@ class ExampleTest {
         assertThat(SumType.VALIDATOR.validate(new SumType("a", 3)).toEither()).hasLeftValueSatisfying(invalid -> {
             assertThat(invalid.violations()).singleElement().satisfies(violation -> {
                 assertThat(violation.movements()).singleElement().satisfies(movement -> {
-                    assertThat(movement.name()).isEqualTo(name("b"));
+                    assertThat(movement).isEqualTo(movement("b"));
                 });
                 assertThat(violation.key()).isEqualTo(key("fn4j.validation.Validators.Integers.greaterThanOrEqualTo"));
             });
@@ -107,12 +107,12 @@ class ExampleTest {
         assertThat(SumType.VALIDATOR.validate(new SumType("", 3)).toEither()).hasLeftValueSatisfying(invalid -> {
             assertThat(invalid.violations()).hasSize(2).satisfies(violation -> {
                 assertThat(violation.movements()).singleElement().satisfies(movement -> {
-                    assertThat(movement.name()).isEqualTo(name("a"));
+                    assertThat(movement).isEqualTo(movement("a"));
                 });
                 assertThat(violation.key()).isEqualTo(key("fn4j.validation.Validators.Strings.notBlank"));
             }, atIndex(0)).satisfies(violation -> {
                 assertThat(violation.movements()).singleElement().satisfies(movement -> {
-                    assertThat(movement.name()).isEqualTo(name("b"));
+                    assertThat(movement).isEqualTo(movement("b"));
                 });
                 assertThat(violation.key()).isEqualTo(key("fn4j.validation.Validators.Integers.greaterThanOrEqualTo"));
             }, atIndex(1));
