@@ -6,7 +6,7 @@ import io.vavr.control.Either;
 import java.util.Iterator;
 import java.util.function.Function;
 
-public record Invalid<A>(Seq<Violation> violations) implements Validation<A> {
+public record Invalid<A>(Seq<Violation> violations) implements ValidationResult<A> {
     public Invalid<A> mapViolations(Function<? super Seq<Violation>, ? extends Seq<Violation>> mapper) {
         return new Invalid<>(mapper.apply(violations));
     }
@@ -22,17 +22,17 @@ public record Invalid<A>(Seq<Violation> violations) implements Validation<A> {
     }
 
     @Override
-    public <B> Validation<B> map(Function<? super A, ? extends B> mapper) {
+    public <B> ValidationResult<B> map(Function<? super A, ? extends B> mapper) {
         return new Invalid<>(violations);
     }
 
     @Override
-    public Validation<A> mapInvalid(Function<Invalid<A>, Invalid<A>> mapper) {
+    public ValidationResult<A> mapInvalid(Function<Invalid<A>, Invalid<A>> mapper) {
         return mapper.apply(this);
     }
 
     @Override
-    public <B> Validation<B> flatMap(Function<? super A, ? extends Validation<B>> mapper) {
+    public <B> ValidationResult<B> flatMap(Function<? super A, ? extends ValidationResult<B>> mapper) {
         return new Invalid<>(violations);
     }
 

@@ -7,11 +7,11 @@ import io.vavr.collection.Stream;
 import java.util.function.Function;
 
 @FunctionalInterface
-public interface Validator<A, B> extends Function1<A, Validation<B>> {
+public interface Validator<A, B> extends Function1<A, ValidationResult<B>> {
     @Override
-    Validation<B> apply(A value);
+    ValidationResult<B> apply(A value);
 
-    default <C> Validator<A, C> map(Function<? super B, ? extends Validation<C>> mapper) {
+    default <C> Validator<A, C> map(Function<? super B, ? extends ValidationResult<C>> mapper) {
         return value -> apply(value).flatMap(mapper);
     }
 
@@ -51,6 +51,6 @@ public interface Validator<A, B> extends Function1<A, Validation<B>> {
     }
 
     static <A> Validator<A, A> ofAll(Iterable<? extends Validator<A, ?>> validators) {
-        return value -> Validation.ofAll(value, Stream.ofAll(validators).map(validator -> validator.apply(value)));
+        return value -> ValidationResult.ofAll(value, Stream.ofAll(validators).map(validator -> validator.apply(value)));
     }
 }

@@ -6,8 +6,8 @@ import java.util.UUID;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 
-import static fn4j.validation.Validation.invalid;
-import static fn4j.validation.Validation.valid;
+import static fn4j.validation.ValidationResult.invalid;
+import static fn4j.validation.ValidationResult.valid;
 import static fn4j.validation.Violation.key;
 import static fn4j.validation.Violation.violation;
 
@@ -22,7 +22,7 @@ public interface Validators {
         }
 
         static <I extends Iterable<A>, A> Validator<I, I> each(Validator<A, A> elementValidator) {
-            return Validators.<I>notNull().map(iterable -> Validation.ofAll(iterable, Stream.ofAll(iterable).zipWithIndex().map(elementAndIndex -> {
+            return Validators.<I>notNull().map(iterable -> ValidationResult.ofAll(iterable, Stream.ofAll(iterable).zipWithIndex().map(elementAndIndex -> {
                 var element = elementAndIndex._1();
                 var index = elementAndIndex._2();
                 return elementValidator.withName("[" + index + ']').apply(element);

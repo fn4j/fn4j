@@ -7,34 +7,34 @@ import io.vavr.control.Either;
 
 import java.util.function.Function;
 
-public interface Validation<A> extends Iterable<A> {
+public interface ValidationResult<A> extends Iterable<A> {
     Either<Invalid<A>, Valid<A>> toEither();
 
     Either<? extends Seq<? extends Violation>, A> toValuesEither();
 
-    <B> Validation<B> map(Function<? super A, ? extends B> mapper);
+    <B> ValidationResult<B> map(Function<? super A, ? extends B> mapper);
 
-    Validation<A> mapInvalid(Function<Invalid<A>, Invalid<A>> mapper);
+    ValidationResult<A> mapInvalid(Function<Invalid<A>, Invalid<A>> mapper);
 
-    <B> Validation<B> flatMap(Function<? super A, ? extends Validation<B>> mapper);
+    <B> ValidationResult<B> flatMap(Function<? super A, ? extends ValidationResult<B>> mapper);
 
     <B> B fold(Function<Invalid<A>, ? extends B> invalidMapper,
                Function<Valid<A>, ? extends B> validMapper);
 
-    static <A> Validation<A> valid(A value) {
+    static <A> ValidationResult<A> valid(A value) {
         return new Valid<>(value);
     }
 
-    static <A> Validation<A> invalid(Violation... violations) {
+    static <A> ValidationResult<A> invalid(Violation... violations) {
         return new Invalid<>(Array.of(violations));
     }
 
-    static <A> Validation<A> invalid(Iterable<? extends Violation> violations) {
+    static <A> ValidationResult<A> invalid(Iterable<? extends Violation> violations) {
         return new Invalid<>(Array.ofAll(violations));
     }
 
-    static <A> Validation<A> ofAll(A value,
-                                   Iterable<? extends Validation<?>> validations) {
+    static <A> ValidationResult<A> ofAll(A value,
+                                         Iterable<? extends ValidationResult<?>> validations) {
         return Stream.ofAll(validations)
                      .foldLeft(valid(value),
                                (accumulatedValidation, currentValidation) -> currentValidation.fold(currentInvalid -> accumulatedValidation.fold(accumulatedInvalid -> invalid(accumulatedInvalid.violations()
