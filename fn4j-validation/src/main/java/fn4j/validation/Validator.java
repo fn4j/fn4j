@@ -1,6 +1,7 @@
 package fn4j.validation;
 
 import io.vavr.Function1;
+import io.vavr.collection.Array;
 import io.vavr.collection.Seq;
 import io.vavr.collection.Stream;
 
@@ -44,5 +45,15 @@ public interface Validator<A, B> extends Function1<ValidationCursor<A>, Validati
     default <C> Validator<C, B> move(Movement movement,
                                      Function<? super C, ? extends A> mover) {
         return ((Validator<C, B>) cursor -> validate(mover.apply(cursor.value()))).registerManualCursorMovement(movement);
+    }
+
+    @SafeVarargs
+    static <A, B> Validator<A, A> ofAll(Validator<A, B> validator,
+                                        Validator<A, ?>... validators) {
+        return Validator.ofAll(Array.of(validators).prepend(validator));
+    }
+
+    static <A> Validator<A, A> ofAll(Iterable<? extends Validator<A, ?>> validators) {
+        return cursor -> Validation.ofAll(cursor.value(), Stream.ofAll(validators).map(validator -> validator.validate(cursor.value())));
     }
 }

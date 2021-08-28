@@ -1,6 +1,7 @@
 package fn4j.validation;
 
 import io.vavr.collection.Array;
+import io.vavr.collection.Stream;
 import io.vavr.control.Either;
 
 import java.util.function.Function;
@@ -27,5 +28,15 @@ public interface Validation<A> extends Iterable<A> {
 
     static <A> Validation<A> invalid(Iterable<? extends Violation> violations) {
         return new Invalid<>(Array.ofAll(violations));
+    }
+
+    static <A> Validation<A> ofAll(A value,
+                                   Iterable<? extends Validation<?>> validations) {
+        return Stream.ofAll(validations)
+                     .foldLeft(valid(value),
+                               (accumulatedValidation, currentValidation) -> currentValidation.fold(currentInvalid -> accumulatedValidation.fold(accumulatedInvalid -> invalid(accumulatedInvalid.violations()
+                                                                                                                                                                                                 .appendAll(currentInvalid.violations())),
+                                                                                                                                                 __ -> invalid(currentInvalid.violations())),
+                                                                                                    __ -> accumulatedValidation));
     }
 }

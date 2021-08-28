@@ -4,8 +4,6 @@ import io.vavr.collection.Stream;
 import net.jqwik.api.Example;
 
 import static fn4j.validation.Movement.name;
-import static fn4j.validation.Validation.invalid;
-import static fn4j.validation.Validation.valid;
 import static fn4j.validation.Validators.*;
 import static fn4j.validation.Violation.key;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -129,16 +127,7 @@ class ExampleTest {
         private static final Validator<String, String> A_VALIDATOR = Strings.notBlank();
         private static final Validator<Integer, Integer> B_VALIDATOR = Integers.greaterThanOrEqualTo(4);
 
-        static final Validator<SumType, SumType> VALIDATOR = cursor -> {
-
-            var aValidation = A_VALIDATOR.move("a", SumType::a).validate(cursor.value());
-            var bValidation = B_VALIDATOR.move("b", SumType::b).validate(cursor.value());
-
-            return aValidation.fold(aInvalid -> bValidation.fold(bInvalid -> invalid(aInvalid.violations()
-                                                                                             .appendAll(bInvalid.violations())),
-                                                                 bValid -> invalid(aInvalid.violations())),
-                                    aValid -> bValidation.fold(bInvalid -> invalid(bInvalid.violations()),
-                                                               bValid -> valid(cursor.value())));
-        };
+        static final Validator<SumType, SumType> VALIDATOR = Validator.ofAll(A_VALIDATOR.move("a", SumType::a),
+                                                                             B_VALIDATOR.move("b", SumType::b));
     }
 }

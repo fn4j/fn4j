@@ -20,26 +20,18 @@ public interface Validators {
         }
 
         static <I extends Iterable<A>, A> Validator<I, I> each(Validator<A, A> elementValidator) {
-            return Validators.<I>notNull().mapValidation(iterable -> {
-                return Stream.ofAll(iterable)
-                             .zipWithIndex()
-                             .map(elementAndIndex -> {
-                                 var element = elementAndIndex._1();
-                                 var index = elementAndIndex._2();
-                                 return elementValidator.registerManualCursorMovement(movement(name("[" + index + ']')))
-                                                        .validate(element);
-                             })
-                             .foldLeft(valid(iterable), (acc, cur) -> cur.fold(curInvalid -> acc.fold(accInvalid -> invalid(accInvalid.violations()
-                                                                                                                                      .appendAll(curInvalid.violations())),
-                                                                                                      __ -> invalid(curInvalid.violations())),
-                                                                               __ -> acc));
-            });
+            return Validators.<I>notNull().mapValidation(iterable -> Validation.ofAll(iterable, Stream.ofAll(iterable).zipWithIndex().map(elementAndIndex -> {
+                var element = elementAndIndex._1();
+                var index = elementAndIndex._2();
+                return elementValidator.registerManualCursorMovement(movement(name("[" + index + ']')))
+                                       .validate(element);
+            })));
         }
     }
 
     interface Strings {
         static Validator<String, String> notBlank() {
-            return Validators.<String>notNull().mapValidation(value -> !value.trim().isEmpty() ? Validation.valid(value) : invalid(violation(key("fn4j.validation.Validators.Strings.notBlank"))));
+            return Validators.<String>notNull().mapValidation(value -> !value.trim().isEmpty() ? valid(value) : invalid(violation(key("fn4j.validation.Validators.Strings.notBlank"))));
         }
     }
 
