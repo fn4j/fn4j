@@ -2,6 +2,7 @@ package fn4j.validation;
 
 import io.vavr.collection.Stream;
 
+import static fn4j.validation.Movement.movement;
 import static fn4j.validation.Validation.invalid;
 import static fn4j.validation.Validation.valid;
 import static fn4j.validation.Violation.violation;
@@ -23,7 +24,13 @@ public interface Validators {
                              .map(elementAndIndex -> {
                                  var element = elementAndIndex._1();
                                  var index = elementAndIndex._2(); // TODO: Use index in message / cursor
-                                 return elementValidator.validate(element).mapInvalid(invalid -> new Invalid<>(invalid.violations()));
+                                 return elementValidator.validate(element).mapInvalid(invalid -> {
+                                     return new Invalid<>(invalid.violations().map(violation -> {
+                                         return violation.mapMovements(movements -> {
+                                             return movements.prepend(movement(new Movement.Name("[" + index + ']')));
+                                         });
+                                     }));
+                                 });
                              })
                              .foldLeft(valid(iterable), (acc, cur) -> cur.fold(curInvalid -> acc.fold(accInvalid -> invalid(accInvalid.violations()
                                                                                                                                       .appendAll(curInvalid.violations())),
@@ -41,7 +48,7 @@ public interface Validators {
 
     interface Integers {
         static Validator<Integer, Integer> greaterThanOrEqualTo(int other) {
-            return Validators.<Integer>notNull().mapValidation(value -> value >= other ? valid(value) : invalid(violation(new Violation.Key(""))));
+            return Validators.<Integer>notNull().mapValidation(value -> value >= other ? valid(value) : invalid(violation(new Violation.Key("fn4j.validation.Validators.Integers.greaterThanOrEqualTo"))));
         }
     }
 }

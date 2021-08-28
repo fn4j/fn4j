@@ -3,19 +3,29 @@ package fn4j.validation;
 import io.vavr.collection.Seq;
 import io.vavr.collection.Stream;
 
+import java.util.function.Function;
+
 public interface Violation {
     Seq<Movement> movements();
 
     Key key();
 
+    Violation mapMovements(Function<? super Seq<Movement>, ? extends Seq<Movement>> mapper);
+
     static Violation violation(final Key key) {
-        return new Root(key);
+        return violation(Stream.empty(), key);
     }
 
-    record Root(Key key) implements Violation {
+    static Violation violation(Stream<Movement> movements,
+                               final Key key) {
+        return new Immutable(movements, key);
+    }
+
+    record Immutable(Seq<Movement> movements,
+                     Key key) implements Violation {
         @Override
-        public Seq<Movement> movements() {
-            return Stream.empty();
+        public Violation mapMovements(Function<? super Seq<Movement>, ? extends Seq<Movement>> mapper) {
+            return new Immutable(mapper.apply(movements), key);
         }
     }
 
