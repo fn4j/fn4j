@@ -11,7 +11,7 @@ import static fn4j.validation.Violation.violation;
 
 public interface Validators {
     static <A> Validator<A, A> notNull() {
-        return cursor -> cursor.value() != null ? valid(cursor.value()) : invalid(violation(key("fn4j.validation.Validators.notNull")));
+        return value -> value != null ? valid(value) : invalid(violation(key("fn4j.validation.Validators.notNull")));
     }
 
     interface Iterables {
@@ -23,7 +23,7 @@ public interface Validators {
             return Validators.<I>notNull().mapValidation(iterable -> Validation.ofAll(iterable, Stream.ofAll(iterable).zipWithIndex().map(elementAndIndex -> {
                 var element = elementAndIndex._1();
                 var index = elementAndIndex._2();
-                return elementValidator.registerManualCursorMovement(movement(name("[" + index + ']')))
+                return elementValidator.registerManualMovement(movement(name("[" + index + ']')))
                                        .validate(element);
             })));
         }

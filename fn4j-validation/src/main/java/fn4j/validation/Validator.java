@@ -11,24 +11,24 @@ import static fn4j.validation.Movement.movement;
 import static fn4j.validation.Movement.name;
 
 @FunctionalInterface
-public interface Validator<A, B> extends Function1<ValidationCursor<A>, Validation<B>> {
+public interface Validator<A, B> extends Function1<A, Validation<B>> {
     @Override
-    Validation<B> apply(ValidationCursor<A> cursor);
+    Validation<B> apply(A value);
 
     default Validation<B> validate(A value) {
-        return apply(new ValidationCursor.Root<>(value));
+        return apply(value);
     }
 
     default <C> Validator<A, C> mapValidation(Function<? super B, ? extends Validation<C>> mapper) {
         return value -> apply(value).flatMap(mapper);
     }
 
-    default Validator<A, B> registerManualCursorMovement(Movement... movements) {
-        return registerManualCursorMovement(Stream.of(movements));
+    default Validator<A, B> registerManualMovement(Movement... movements) {
+        return registerManualMovement(Stream.of(movements));
     }
 
-    default Validator<A, B> registerManualCursorMovement(Seq<Movement> movements) {
-        return cursor -> apply(cursor).mapInvalid(invalid -> {
+    default Validator<A, B> registerManualMovement(Seq<Movement> movements) {
+        return value -> apply(value).mapInvalid(invalid -> {
             return new Invalid<>(invalid.violations().map(violation -> {
                 return violation.mapMovements(followingMovements -> {
                     return followingMovements.appendAll(movements);
@@ -44,7 +44,7 @@ public interface Validator<A, B> extends Function1<ValidationCursor<A>, Validati
 
     default <C> Validator<C, B> move(Movement movement,
                                      Function<? super C, ? extends A> mover) {
-        return ((Validator<C, B>) cursor -> validate(mover.apply(cursor.value()))).registerManualCursorMovement(movement);
+        return ((Validator<C, B>) value -> validate(mover.apply(value))).registerManualMovement(movement);
     }
 
     @SafeVarargs
@@ -54,6 +54,6 @@ public interface Validator<A, B> extends Function1<ValidationCursor<A>, Validati
     }
 
     static <A> Validator<A, A> ofAll(Iterable<? extends Validator<A, ?>> validators) {
-        return cursor -> Validation.ofAll(cursor.value(), Stream.ofAll(validators).map(validator -> validator.validate(cursor.value())));
+        return value -> Validation.ofAll(value, Stream.ofAll(validators).map(validator -> validator.validate(value)));
     }
 }
