@@ -8,12 +8,12 @@ import static fn4j.validation.Violation.violation;
 
 public interface Validators {
     static <A> Validator<A, A> notNull() {
-        return value -> value != null ? valid(value) : invalid(violation());
+        return cursor -> cursor.value() != null ? valid(cursor.value()) : invalid(violation(new Violation.Key("fn4j.validation.Validators.notNull")));
     }
 
     interface Iterables {
         static <A extends Iterable<?>> Validator<A, A> notEmpty() {
-            return Validators.<A>notNull().mapValidation(iterable -> iterable.iterator().hasNext() ? valid(iterable) : invalid(violation()));
+            return Validators.<A>notNull().mapValidation(iterable -> iterable.iterator().hasNext() ? valid(iterable) : invalid(violation(new Violation.Key(""))));
         }
 
         static <I extends Iterable<A>, A> Validator<I, I> each(Validator<A, A> elementValidator) {
@@ -23,7 +23,7 @@ public interface Validators {
                              .map(elementAndIndex -> {
                                  var element = elementAndIndex._1();
                                  var index = elementAndIndex._2(); // TODO: Use index in message / cursor
-                                 return elementValidator.apply(element).mapInvalid(invalid -> new Invalid<>(invalid.violations()));
+                                 return elementValidator.validate(element).mapInvalid(invalid -> new Invalid<>(invalid.violations()));
                              })
                              .foldLeft(valid(iterable), (acc, cur) -> cur.fold(curInvalid -> acc.fold(accInvalid -> invalid(accInvalid.violations()
                                                                                                                                       .appendAll(curInvalid.violations())),
@@ -35,13 +35,13 @@ public interface Validators {
 
     interface Strings {
         static Validator<String, String> notBlank() {
-            return Validators.<String>notNull().mapValidation(value -> !value.trim().isEmpty() ? Validation.valid(value) : invalid(violation()));
+            return Validators.<String>notNull().mapValidation(value -> !value.trim().isEmpty() ? Validation.valid(value) : invalid(violation(new Violation.Key("fn4j.validation.Validators.Strings.notBlank"))));
         }
     }
 
     interface Integers {
         static Validator<Integer, Integer> greaterThanOrEqualTo(int other) {
-            return Validators.<Integer>notNull().mapValidation(value -> value >= other ? valid(value) : invalid(violation()));
+            return Validators.<Integer>notNull().mapValidation(value -> value >= other ? valid(value) : invalid(violation(new Violation.Key(""))));
         }
     }
 }
