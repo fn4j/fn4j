@@ -23,7 +23,7 @@ public interface Validators {
                              .zipWithIndex()
                              .map(elementAndIndex -> {
                                  var element = elementAndIndex._1();
-                                 var index = elementAndIndex._2(); // TODO: Use index in message / cursor
+                                 var index = elementAndIndex._2();
                                  return elementValidator.validate(element).mapInvalid(invalid -> {
                                      return new Invalid<>(invalid.violations().map(violation -> {
                                          return violation.mapMovements(movements -> {
