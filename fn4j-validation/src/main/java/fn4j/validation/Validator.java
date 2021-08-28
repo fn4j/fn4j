@@ -6,6 +6,9 @@ import io.vavr.collection.Stream;
 
 import java.util.function.Function;
 
+import static fn4j.validation.Movement.movement;
+import static fn4j.validation.Movement.name;
+
 @FunctionalInterface
 public interface Validator<A, B> extends Function1<ValidationCursor<A>, Validation<B>> {
     @Override
@@ -31,5 +34,15 @@ public interface Validator<A, B> extends Function1<ValidationCursor<A>, Validati
                 });
             }));
         });
+    }
+
+    default <C> Validator<C, B> move(String movement,
+                                     Function<? super C, ? extends A> mover) {
+        return move(movement(name(movement)), mover);
+    }
+
+    default <C> Validator<C, B> move(Movement movement,
+                                     Function<? super C, ? extends A> mover) {
+        return ((Validator<C, B>) cursor -> validate(mover.apply(cursor.value()))).registerManualCursorMovement(movement);
     }
 }

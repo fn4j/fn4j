@@ -3,7 +3,6 @@ package fn4j.validation;
 import io.vavr.collection.Stream;
 import net.jqwik.api.Example;
 
-import static fn4j.validation.Movement.movement;
 import static fn4j.validation.Movement.name;
 import static fn4j.validation.Validation.invalid;
 import static fn4j.validation.Validation.valid;
@@ -131,8 +130,10 @@ class ExampleTest {
         private static final Validator<Integer, Integer> B_VALIDATOR = Integers.greaterThanOrEqualTo(4);
 
         static final Validator<SumType, SumType> VALIDATOR = cursor -> {
-            var aValidation = A_VALIDATOR.registerManualCursorMovement(movement(name("a"))).validate(cursor.value().a());
-            var bValidation = B_VALIDATOR.registerManualCursorMovement(movement(name("b"))).validate(cursor.value().b());
+
+            var aValidation = A_VALIDATOR.move("a", SumType::a).validate(cursor.value());
+            var bValidation = B_VALIDATOR.move("b", SumType::b).validate(cursor.value());
+
             return aValidation.fold(aInvalid -> bValidation.fold(bInvalid -> invalid(aInvalid.violations()
                                                                                              .appendAll(bInvalid.violations())),
                                                                  bValid -> invalid(aInvalid.violations())),
