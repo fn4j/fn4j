@@ -14,10 +14,6 @@ public interface Validator<A, B> extends Function1<A, Validation<B>> {
     @Override
     Validation<B> apply(A value);
 
-    default Validation<B> validate(A value) {
-        return apply(value);
-    }
-
     default <C> Validator<A, C> map(Function<? super B, ? extends Validation<C>> mapper) {
         return value -> apply(value).flatMap(mapper);
     }
@@ -43,7 +39,7 @@ public interface Validator<A, B> extends Function1<A, Validation<B>> {
 
     default <C> Validator<C, B> move(Movement movement,
                                      Function<? super C, ? extends A> mover) {
-        return ((Validator<C, B>) value -> validate(mover.apply(value))).manualMove(movement);
+        return ((Validator<C, B>) value -> apply(mover.apply(value))).manualMove(movement);
     }
 
     @SafeVarargs
@@ -53,6 +49,6 @@ public interface Validator<A, B> extends Function1<A, Validation<B>> {
     }
 
     static <A> Validator<A, A> ofAll(Iterable<? extends Validator<A, ?>> validators) {
-        return value -> Validation.ofAll(value, Stream.ofAll(validators).map(validator -> validator.validate(value)));
+        return value -> Validation.ofAll(value, Stream.ofAll(validators).map(validator -> validator.apply(value)));
     }
 }

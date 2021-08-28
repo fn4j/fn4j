@@ -24,8 +24,7 @@ public interface Validators {
             return Validators.<I>notNull().map(iterable -> Validation.ofAll(iterable, Stream.ofAll(iterable).zipWithIndex().map(elementAndIndex -> {
                 var element = elementAndIndex._1();
                 var index = elementAndIndex._2();
-                return elementValidator.manualMove(movement("[" + index + ']'))
-                                       .validate(element);
+                return elementValidator.manualMove(movement("[" + index + ']')).apply(element);
             })));
         }
     }
