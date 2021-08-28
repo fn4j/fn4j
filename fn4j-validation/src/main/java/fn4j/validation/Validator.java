@@ -29,6 +29,16 @@ public interface Validator<A, B> extends Function1<A, Validation<B>> {
         });
     }
 
+    default Validator<A, B> withMessage(Function<A, String> message) {
+        return value -> apply(value).mapInvalid(invalid -> {
+            return invalid.mapViolations(violations -> {
+                return violations.map(violation -> {
+                    return violation.withMessage(message.apply(value));
+                });
+            });
+        });
+    }
+
     default <C> Validator<C, B> as(String name,
                                    Function<? super C, ? extends A> extractor) {
         return ((Validator<C, B>) value -> apply(extractor.apply(value))).withName(name);

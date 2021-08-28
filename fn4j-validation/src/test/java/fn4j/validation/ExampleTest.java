@@ -1,5 +1,6 @@
 package fn4j.validation;
 
+import fn4j.validation.Violation.MessageViolation;
 import fn4j.validation.Violation.ThrowableViolation;
 import io.vavr.collection.Stream;
 import net.jqwik.api.Example;
@@ -116,21 +117,41 @@ class ExampleTest {
             assertThat(invalid.violations()).singleElement().satisfies(violation -> {
                 assertThat(violation.key()).isEqualTo(key("fn4j.validation.Validators.Strings.notBlank"));
                 assertThat(violation.path()).singleElement().isEqualTo("a");
+                assertThat(violation).isExactlyInstanceOf(MessageViolation.class)
+                                     .asInstanceOf(type(MessageViolation.class))
+                                     .satisfies(messageViolation -> {
+                                         assertThat(messageViolation.message()).isEqualTo("a must not be blank");
+                                     });
             });
         });
         assertThat(SumType.VALIDATOR.apply(new SumType("a", 3)).toEither()).hasLeftValueSatisfying(invalid -> {
             assertThat(invalid.violations()).singleElement().satisfies(violation -> {
                 assertThat(violation.key()).isEqualTo(key("fn4j.validation.Validators.Integers.greaterThanOrEqualTo"));
                 assertThat(violation.path()).singleElement().isEqualTo("b");
+                assertThat(violation).isExactlyInstanceOf(MessageViolation.class)
+                                     .asInstanceOf(type(MessageViolation.class))
+                                     .satisfies(messageViolation -> {
+                                         assertThat(messageViolation.message()).isEqualTo("b must not be less than 4, but was 3");
+                                     });
             });
         });
-        assertThat(SumType.VALIDATOR.apply(new SumType("", 3)).toEither()).hasLeftValueSatisfying(invalid -> {
+        assertThat(SumType.VALIDATOR.apply(new SumType("", 1)).toEither()).hasLeftValueSatisfying(invalid -> {
             assertThat(invalid.violations()).hasSize(2).satisfies(violation -> {
                 assertThat(violation.key()).isEqualTo(key("fn4j.validation.Validators.Strings.notBlank"));
                 assertThat(violation.path()).singleElement().isEqualTo("a");
+                assertThat(violation).isExactlyInstanceOf(MessageViolation.class)
+                                     .asInstanceOf(type(MessageViolation.class))
+                                     .satisfies(messageViolation -> {
+                                         assertThat(messageViolation.message()).isEqualTo("a must not be blank");
+                                     });
             }, atIndex(0)).satisfies(violation -> {
                 assertThat(violation.key()).isEqualTo(key("fn4j.validation.Validators.Integers.greaterThanOrEqualTo"));
                 assertThat(violation.path()).singleElement().isEqualTo("b");
+                assertThat(violation).isExactlyInstanceOf(MessageViolation.class)
+                                     .asInstanceOf(type(MessageViolation.class))
+                                     .satisfies(messageViolation -> {
+                                         assertThat(messageViolation.message()).isEqualTo("b must not be less than 4, but was 1");
+                                     });
             }, atIndex(1));
         });
         assertThat(SumType.VALIDATOR.apply(new SumType("a", 4)).toEither()).hasRightValueSatisfying(valid -> {
@@ -140,8 +161,8 @@ class ExampleTest {
 
     static record SumType(String a,
                           int b) {
-        private static final Validator<String, String> A_VALIDATOR = Strings.notBlank();
-        private static final Validator<Integer, Integer> B_VALIDATOR = Integers.min(4);
+        private static final Validator<String, String> A_VALIDATOR = Strings.notBlank().withMessage(__ -> "a must not be blank");
+        private static final Validator<Integer, Integer> B_VALIDATOR = Integers.min(4).withMessage(actual -> "b must not be less than 4, but was " + actual);
 
         static final Validator<SumType, SumType> VALIDATOR = Validator.ofAll(A_VALIDATOR.as("a", SumType::a),
                                                                              B_VALIDATOR.as("b", SumType::b));

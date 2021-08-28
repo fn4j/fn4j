@@ -12,8 +12,17 @@ public interface Violation {
 
     Violation mapPath(Function<? super Seq<String>, ? extends Seq<String>> mapper);
 
+    default MessageViolation withMessage(String message) {
+        return new MessageViolation(key(), path(), message);
+    }
+
     static Violation violation(Key key) {
         return new PlainViolation(key, Stream.empty());
+    }
+
+    static Violation violation(Key key,
+                               String message) {
+        return new MessageViolation(key, Stream.empty(), message);
     }
 
     static <T extends Throwable> Violation violation(Key key,
@@ -30,6 +39,15 @@ public interface Violation {
         @Override
         public Violation mapPath(Function<? super Seq<String>, ? extends Seq<String>> mapper) {
             return new PlainViolation(key, mapper.apply(path));
+        }
+    }
+
+    record MessageViolation(Key key,
+                            Seq<String> path,
+                            String message) implements Violation {
+        @Override
+        public Violation mapPath(Function<? super Seq<String>, ? extends Seq<String>> mapper) {
+            return new MessageViolation(key, mapper.apply(path), message);
         }
     }
 
