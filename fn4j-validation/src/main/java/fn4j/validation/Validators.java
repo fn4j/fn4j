@@ -31,6 +31,10 @@ public interface Validators {
     }
 
     interface Strings {
+        static Validator<String, String> notEmpty() {
+            return Validators.<String>notNull().map(value -> !value.isEmpty() ? valid(value) : invalid(violation(key("fn4j.validation.Validators.Strings.notEmpty"))));
+        }
+
         static Validator<String, String> notBlank() {
             return Validators.<String>notNull().map(value -> !value.strip().isEmpty() ? valid(value) : invalid(violation(key("fn4j.validation.Validators.Strings.notBlank"))));
         }

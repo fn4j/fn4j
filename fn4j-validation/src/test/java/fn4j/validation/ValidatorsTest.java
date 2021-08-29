@@ -116,6 +116,51 @@ class ValidatorsTest {
 
         @Group
         @Label("notBlank")
+        class StringsNotEmptyTest {
+
+            @Property
+            @Label("should be valid if not empty")
+            void shouldBeValidIfNotEmpty(@ForAll @NotEmpty String string) {
+                // when
+                ValidationResult<String> result = Validators.Strings.notEmpty().apply(string);
+
+                // then
+                assertThat(result.toValuesEither()).containsRightSame(string);
+            }
+
+            @Example
+            @Label("should be invalid if null")
+            void shouldBeInvalidIfNull() {
+                // when
+                ValidationResult<String> result = Validators.Strings.notEmpty().apply(null);
+
+                // then
+                assertThat(result.toValuesEither()).hasLeftValueSatisfying(violations -> {
+                    assertThat(violations).singleElement().satisfies(violation -> {
+                        assertThat(violation.key()).isEqualTo(key("fn4j.validation.Validators.notNull"));
+                        assertThat(violation.path()).isEmpty();
+                    });
+                });
+            }
+
+            @Example
+            @Label("should be invalid if empty")
+            void shouldBeInvalidIfEmpty() {
+                // when
+                ValidationResult<String> result = Validators.Strings.notEmpty().apply("");
+
+                // then
+                assertThat(result.toValuesEither()).hasLeftValueSatisfying(violations -> {
+                    assertThat(violations).singleElement().satisfies(violation -> {
+                        assertThat(violation.key()).isEqualTo(key("fn4j.validation.Validators.Strings.notEmpty"));
+                        assertThat(violation.path()).isEmpty();
+                    });
+                });
+            }
+        }
+
+        @Group
+        @Label("notBlank")
         class StringsNotBlankTest {
 
             @Property
@@ -143,7 +188,7 @@ class ValidatorsTest {
                 });
             }
 
-            @Example
+            @Property
             @Label("should be invalid if blank")
             void shouldBeInvalidIfBlank(@ForAll @Whitespace String string) {
                 // when
@@ -159,7 +204,6 @@ class ValidatorsTest {
             }
         }
 
-        // TODO: notEmpty
         // TODO: pattern
     }
 

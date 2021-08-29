@@ -1,7 +1,6 @@
 package fn4j.validation;
 
 import io.vavr.Function1;
-import io.vavr.collection.Array;
 import io.vavr.collection.Stream;
 
 import java.util.function.Function;
@@ -44,10 +43,14 @@ public interface Validator<A, B> extends Function1<A, ValidationResult<B>> {
         return ((Validator<C, B>) value -> apply(extractor.apply(value))).withName(name);
     }
 
+    static <A, B> Validator<A, B> of(Function<? super A, ? extends ValidationResult<B>> validator) {
+        return validator::apply;
+    }
+
     @SafeVarargs
-    static <A, B> Validator<A, A> ofAll(Validator<A, B> validator,
-                                        Validator<A, ?>... validators) {
-        return Validator.ofAll(Array.of(validators).prepend(validator));
+    static <A> Validator<A, A> ofAll(Validator<A, ?> validator,
+                                     Validator<A, ?>... validators) {
+        return Validator.ofAll(Stream.of(validators).prepend(validator));
     }
 
     static <A> Validator<A, A> ofAll(Iterable<? extends Validator<A, ?>> validators) {
