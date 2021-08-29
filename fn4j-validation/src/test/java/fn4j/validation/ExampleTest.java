@@ -15,39 +15,6 @@ import static org.assertj.vavr.api.VavrAssertions.assertThat;
 class ExampleTest {
     @Example
     void should() {
-        assertThat(notNull().apply(null).toEither()).hasLeftValueSatisfying(invalid -> {
-            assertThat(invalid.violations()).singleElement().satisfies(violation -> {
-                assertThat(violation.key()).isEqualTo(key("fn4j.validation.Validators.notNull"));
-                assertThat(violation.path()).isEmpty();
-            });
-        });
-        assertThat(notNull().apply("").toEither()).hasRightValueSatisfying(valid -> {
-            assertThat(valid.value()).isEqualTo("");
-        });
-        assertThat(Strings.notBlank().apply("").toEither()).hasLeftValueSatisfying(invalid -> {
-            assertThat(invalid.violations()).singleElement().satisfies(violation -> {
-                assertThat(violation.key()).isEqualTo(key("fn4j.validation.Validators.Strings.notBlank"));
-                assertThat(violation.path()).isEmpty();
-            });
-        });
-        assertThat(Strings.notBlank().apply(null).toEither()).hasLeftValueSatisfying(invalid -> {
-            assertThat(invalid.violations()).singleElement().satisfies(violation -> {
-                assertThat(violation.key()).isEqualTo(key("fn4j.validation.Validators.notNull"));
-                assertThat(violation.path()).isEmpty();
-            });
-        });
-        assertThat(Strings.notBlank().apply(" ").toEither()).hasLeftValueSatisfying(invalid -> {
-            assertThat(invalid.violations()).singleElement().satisfies(violation -> {
-                assertThat(violation.key()).isEqualTo(key("fn4j.validation.Validators.Strings.notBlank"));
-                assertThat(violation.path()).isEmpty();
-            });
-        });
-        assertThat(Strings.notBlank().apply("a").toEither()).hasRightValueSatisfying(valid -> {
-            assertThat(valid.value()).isEqualTo("a");
-        });
-        assertThat(Strings.notBlank().apply(" a").toEither()).hasRightValueSatisfying(valid -> {
-            assertThat(valid.value()).isEqualTo(" a");
-        });
         assertThat(Strings.pattern("[a-z]+").apply("ab12").toEither()).hasLeftValueSatisfying(invalid -> {
             assertThat(invalid.violations()).singleElement().satisfies(violation -> {
                 assertThat(violation.key()).isEqualTo(key("fn4j.validation.Validators.Strings.match"));
@@ -62,7 +29,7 @@ class ExampleTest {
             assertThat(valid.value().end(0)).isEqualTo(4);
             assertThat(valid.value().group(0)).isEqualTo("abcd");
         });
-        assertThat(Uuids.uuid().apply("<invalid>").toEither()).hasLeftValueSatisfying(invalid -> {
+        assertThat(Uuids.uuidFromString().apply("<invalid>").toEither()).hasLeftValueSatisfying(invalid -> {
             assertThat(invalid.violations()).singleElement().satisfies(violation -> {
                 assertThat(violation.key()).isEqualTo(key("fn4j.validation.Validators.Uuids.uuid"));
                 assertThat(violation.path()).isEmpty();
@@ -73,24 +40,6 @@ class ExampleTest {
                                                                                    .hasMessage("Invalid UUID string: <invalid>");
                                      });
             });
-        });
-        assertThat(Iterables.notEmpty().apply(java.util.List.of()).toEither()).hasLeftValueSatisfying(invalid -> {
-            assertThat(invalid.violations()).singleElement().satisfies(violation -> {
-                assertThat(violation.key()).isEqualTo(key("fn4j.validation.Validators.Iterables.notEmpty"));
-                assertThat(violation.path()).isEmpty();
-            });
-        });
-        assertThat(Iterables.notEmpty().apply(java.util.List.of("")).toEither()).hasRightValueSatisfying(valid -> {
-            assertThat(valid.value()).isEqualTo(java.util.List.of(""));
-        });
-        assertThat(Iterables.notEmpty().apply(Stream.empty()).toEither()).hasLeftValueSatisfying(invalid -> {
-            assertThat(invalid.violations()).singleElement().satisfies(violation -> {
-                assertThat(violation.key()).isEqualTo(key("fn4j.validation.Validators.Iterables.notEmpty"));
-                assertThat(violation.path()).isEmpty();
-            });
-        });
-        assertThat(Iterables.notEmpty().apply(Stream.of("")).toEither()).hasRightValueSatisfying(valid -> {
-            assertThat(valid.value()).isEqualTo(Stream.of(""));
         });
         assertThat(Iterables.each(Strings.notBlank()).apply(Stream.of("a", "")).toEither()).hasLeftValueSatisfying(invalid -> {
             assertThat(invalid.violations()).singleElement().satisfies(violation -> {

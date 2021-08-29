@@ -32,7 +32,7 @@ public interface Validators {
 
     interface Strings {
         static Validator<String, String> notBlank() {
-            return Validators.<String>notNull().map(value -> !value.trim().isEmpty() ? valid(value) : invalid(violation(key("fn4j.validation.Validators.Strings.notBlank"))));
+            return Validators.<String>notNull().map(value -> !value.strip().isEmpty() ? valid(value) : invalid(violation(key("fn4j.validation.Validators.Strings.notBlank"))));
         }
 
         static Validator<String, MatchResult> pattern(String pattern) {
@@ -54,7 +54,7 @@ public interface Validators {
     }
 
     interface Uuids {
-        static Validator<String, UUID> uuid() {
+        static Validator<String, UUID> uuidFromString() {
             return Validators.<String>notNull().map(string -> {
                 try {
                     return valid(UUID.fromString(string));
