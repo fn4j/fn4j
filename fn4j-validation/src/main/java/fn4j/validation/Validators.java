@@ -53,11 +53,11 @@ public interface Validators {
 
     interface Integers {
         static Validator<Integer, Integer> min(int minimum) {
-            return value -> value >= minimum ? valid(value) : invalid(violation(key("fn4j.validation.Validators.Integers.min")));
+            return Validators.<Integer>notNull().map(value -> value >= minimum ? valid(value) : invalid(violation(key("fn4j.validation.Validators.Integers.min"))));
         }
 
         static Validator<Integer, Integer> max(int maximum) {
-            return value -> value <= maximum ? valid(value) : invalid(violation(key("fn4j.validation.Validators.Integers.max")));
+            return Validators.<Integer>notNull().map(value -> value <= maximum ? valid(value) : invalid(violation(key("fn4j.validation.Validators.Integers.max"))));
         }
     }
 

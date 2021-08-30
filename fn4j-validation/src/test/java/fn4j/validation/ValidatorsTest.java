@@ -230,6 +230,21 @@ class ValidatorsTest {
             }
 
             @Property
+            @Label("should be invalid if null")
+            void shouldBeInvalidIfNull(@ForAll int minimum) {
+                // when
+                ValidationResult<Integer> result = Validators.Integers.min(minimum).apply(null);
+
+                // then
+                assertThat(result.toValuesEither()).hasLeftValueSatisfying(violations -> {
+                    assertThat(violations).singleElement().satisfies(violation -> {
+                        assertThat(violation.key()).isEqualTo(key("fn4j.validation.Validators.notNull"));
+                        assertThat(violation.path()).isEmpty();
+                    });
+                });
+            }
+
+            @Property
             @Label("should be invalid if less than minimum")
             void shouldBeInvalidIfLessThanMinimum(@ForAll int i,
                                                   @ForAll int minimum) {
@@ -265,6 +280,21 @@ class ValidatorsTest {
 
                 // then
                 assertThat(result.toValuesEither()).containsOnRight(i);
+            }
+
+            @Property
+            @Label("should be invalid if null")
+            void shouldBeInvalidIfNull(@ForAll int maximum) {
+                // when
+                ValidationResult<Integer> result = Validators.Integers.max(maximum).apply(null);
+
+                // then
+                assertThat(result.toValuesEither()).hasLeftValueSatisfying(violations -> {
+                    assertThat(violations).singleElement().satisfies(violation -> {
+                        assertThat(violation.key()).isEqualTo(key("fn4j.validation.Validators.notNull"));
+                        assertThat(violation.path()).isEmpty();
+                    });
+                });
             }
 
             @Property
