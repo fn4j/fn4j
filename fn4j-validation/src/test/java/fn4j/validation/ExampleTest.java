@@ -1,7 +1,6 @@
 package fn4j.validation;
 
 import fn4j.validation.Violation.MessageViolation;
-import fn4j.validation.Violation.ThrowableViolation;
 import io.vavr.collection.Stream;
 import net.jqwik.api.Example;
 
@@ -28,18 +27,6 @@ class ExampleTest {
             assertThat(valid.value().start(0)).isEqualTo(0);
             assertThat(valid.value().end(0)).isEqualTo(4);
             assertThat(valid.value().group(0)).isEqualTo("abcd");
-        });
-        assertThat(Uuids.uuidFromString().apply("<invalid>").toEither()).hasLeftValueSatisfying(invalid -> {
-            assertThat(invalid.violations()).singleElement().satisfies(violation -> {
-                assertThat(violation.key()).isEqualTo(key("fn4j.validation.Validators.Uuids.uuid"));
-                assertThat(violation.path()).isEmpty();
-                assertThat(violation).isExactlyInstanceOf(ThrowableViolation.class)
-                                     .asInstanceOf(type(ThrowableViolation.class))
-                                     .satisfies(throwableViolation -> {
-                                         assertThat(throwableViolation.throwable()).isExactlyInstanceOf(IllegalArgumentException.class)
-                                                                                   .hasMessage("Invalid UUID string: <invalid>");
-                                     });
-            });
         });
         assertThat(Iterables.each(Strings.notBlank()).apply(Stream.of("a", "")).toEither()).hasLeftValueSatisfying(invalid -> {
             assertThat(invalid.violations()).singleElement().satisfies(violation -> {

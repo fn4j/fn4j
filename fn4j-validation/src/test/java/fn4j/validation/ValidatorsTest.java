@@ -1,12 +1,14 @@
 package fn4j.validation;
 
+import io.vavr.control.Try;
 import net.jqwik.api.*;
+import net.jqwik.api.constraints.CharRange;
 import net.jqwik.api.constraints.NotBlank;
 import net.jqwik.api.constraints.NotEmpty;
-import net.jqwik.api.constraints.Whitespace;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.UUID;
 
 import static fn4j.validation.Violation.key;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -190,7 +192,7 @@ class ValidatorsTest {
 
             @Property
             @Label("should be invalid if blank")
-            void shouldBeInvalidIfBlank(@ForAll @Whitespace String string) {
+            void shouldBeInvalidIfBlank(@ForAll @CharRange(to = ' ') String string) {
                 // when
                 ValidationResult<String> result = Validators.Strings.notBlank().apply(string);
 
@@ -318,5 +320,61 @@ class ValidatorsTest {
         }
     }
 
-    // TODO: uuids
+    @Group
+    @Label("Uuids")
+    class UuidsTest {
+
+        @Group
+        @Label("uuidFromString")
+        class UuidsUuidFromStringTest {
+
+            @Property
+            @Label("should be valid")
+            void shouldBeValidIf(@ForAll long mostSigBits,
+                                 @ForAll long leastSigBits) {
+                // given
+                UUID uuid = new UUID(mostSigBits, leastSigBits);
+                String uuidString = uuid.toString();
+
+                // when
+                ValidationResult<UUID> result = Validators.Uuids.uuidFromString().apply(uuidString);
+
+                // then
+                assertThat(result.toValuesEither()).containsOnRight(uuid);
+            }
+
+            @Property
+            @Label("should be invalid if null")
+            void shouldBeInvalidIfNull() {
+                // when
+                ValidationResult<UUID> result = Validators.Uuids.uuidFromString().apply(null);
+
+                // then
+                assertThat(result.toValuesEither()).hasLeftValueSatisfying(violations -> {
+                    assertThat(violations).singleElement().satisfies(violation -> {
+                        assertThat(violation.key()).isEqualTo(key("fn4j.validation.Validators.notNull"));
+                        assertThat(violation.path()).isEmpty();
+                    });
+                });
+            }
+
+            @Property
+            @Label("should be invalid")
+            void shouldBeInvalid(@ForAll String string) {
+                // given
+                Assume.that(Try.of(() -> UUID.fromString(string)).isFailure());
+
+                // when
+                ValidationResult<UUID> result = Validators.Uuids.uuidFromString().apply(string);
+
+                // then
+                assertThat(result.toValuesEither()).hasLeftValueSatisfying(violations -> {
+                    assertThat(violations).singleElement().satisfies(violation -> {
+                        assertThat(violation.key()).isEqualTo(key("fn4j.validation.Validators.Uuids.uuidFromString"));
+                        assertThat(violation.path()).isEmpty();
+                    });
+                });
+            }
+        }
+    }
 }
