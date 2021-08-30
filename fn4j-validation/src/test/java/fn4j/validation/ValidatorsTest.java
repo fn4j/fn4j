@@ -207,6 +207,86 @@ class ValidatorsTest {
         // TODO: pattern
     }
 
-    // TODO: integers
+    @Group
+    @Label("Integers")
+    class IntegersTest {
+
+        @Group
+        @Label("min")
+        class IntegersMinTest {
+
+            @Property
+            @Label("should be valid if equal or greater than minimum")
+            void shouldBeValidIfEqualOrGreaterThanMinimum(@ForAll int i,
+                                                          @ForAll int minimum) {
+                // given
+                Assume.that(i >= minimum);
+
+                // when
+                ValidationResult<Integer> result = Validators.Integers.min(minimum).apply(i);
+
+                // then
+                assertThat(result.toValuesEither()).containsOnRight(i);
+            }
+
+            @Property
+            @Label("should be invalid if less than minimum")
+            void shouldBeInvalidIfLessThanMinimum(@ForAll int i,
+                                                  @ForAll int minimum) {
+                // given
+                Assume.that(i < minimum);
+
+                // when
+                ValidationResult<Integer> result = Validators.Integers.min(minimum).apply(i);
+
+                // then
+                assertThat(result.toValuesEither()).hasLeftValueSatisfying(violations -> {
+                    assertThat(violations).singleElement().satisfies(violation -> {
+                        assertThat(violation.key()).isEqualTo(key("fn4j.validation.Validators.Integers.min"));
+                        assertThat(violation.path()).isEmpty();
+                    });
+                });
+            }
+        }
+
+        @Group
+        @Label("max")
+        class IntegersMaxTest {
+
+            @Property
+            @Label("should be valid if equal or less than maximum")
+            void shouldBeValidIfEqualOrLessThanMaximum(@ForAll int i,
+                                                       @ForAll int maximum) {
+                // given
+                Assume.that(i <= maximum);
+
+                // when
+                ValidationResult<Integer> result = Validators.Integers.max(maximum).apply(i);
+
+                // then
+                assertThat(result.toValuesEither()).containsOnRight(i);
+            }
+
+            @Property
+            @Label("should be invalid if greater than maximum")
+            void shouldBeInvalidIfGreaterThanMaximum(@ForAll int i,
+                                                     @ForAll int maximum) {
+                // given
+                Assume.that(i > maximum);
+
+                // when
+                ValidationResult<Integer> result = Validators.Integers.max(maximum).apply(i);
+
+                // then
+                assertThat(result.toValuesEither()).hasLeftValueSatisfying(violations -> {
+                    assertThat(violations).singleElement().satisfies(violation -> {
+                        assertThat(violation.key()).isEqualTo(key("fn4j.validation.Validators.Integers.max"));
+                        assertThat(violation.path()).isEmpty();
+                    });
+                });
+            }
+        }
+    }
+
     // TODO: uuids
 }

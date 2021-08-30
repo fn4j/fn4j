@@ -46,14 +46,18 @@ public interface Validators {
         static Validator<String, MatchResult> pattern(Pattern pattern) {
             return string -> {
                 var matcher = pattern.matcher(string);
-                return matcher.matches() ? valid(matcher.toMatchResult()) : invalid(violation(key("fn4j.validation.Validators.Strings.match")));
+                return matcher.matches() ? valid(matcher.toMatchResult()) : invalid(violation(key("fn4j.validation.Validators.Strings.pattern")));
             };
         }
     }
 
     interface Integers {
-        static Validator<Integer, Integer> min(int other) {
-            return Validators.<Integer>notNull().map(value -> value >= other ? valid(value) : invalid(violation(key("fn4j.validation.Validators.Integers.greaterThanOrEqualTo"))));
+        static Validator<Integer, Integer> min(int minimum) {
+            return value -> value >= minimum ? valid(value) : invalid(violation(key("fn4j.validation.Validators.Integers.min")));
+        }
+
+        static Validator<Integer, Integer> max(int maximum) {
+            return value -> value <= maximum ? valid(value) : invalid(violation(key("fn4j.validation.Validators.Integers.max")));
         }
     }
 
@@ -63,7 +67,7 @@ public interface Validators {
                 try {
                     return valid(UUID.fromString(string));
                 } catch (IllegalArgumentException e) {
-                    return invalid(violation(key("fn4j.validation.Validators.Uuids.uuid"), e));
+                    return invalid(violation(key("fn4j.validation.Validators.Uuids.uuidFromString"), e));
                 }
             });
         }
