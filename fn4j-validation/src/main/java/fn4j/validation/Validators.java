@@ -44,10 +44,10 @@ public interface Validators {
         }
 
         static Validator<String, MatchResult> pattern(Pattern pattern) {
-            return string -> {
+            return Validators.<String>notNull().map(string -> {
                 var matcher = pattern.matcher(string);
                 return matcher.matches() ? valid(matcher.toMatchResult()) : invalid(violation(key("fn4j.validation.Validators.Strings.pattern")));
-            };
+            });
         }
     }
 

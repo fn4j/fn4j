@@ -14,20 +14,6 @@ import static org.assertj.vavr.api.VavrAssertions.assertThat;
 class ExampleTest {
     @Example
     void should() {
-        assertThat(Strings.pattern("[a-z]+").apply("ab12").toEither()).hasLeftValueSatisfying(invalid -> {
-            assertThat(invalid.violations()).singleElement().satisfies(violation -> {
-                assertThat(violation.key()).isEqualTo(key("fn4j.validation.Validators.Strings.match"));
-                assertThat(violation.path()).isEmpty();
-            });
-        });
-        assertThat(Strings.pattern("([a-z]+)").apply("abcd").toEither()).hasRightValueSatisfying(valid -> {
-            assertThat(valid.value().start()).isEqualTo(0);
-            assertThat(valid.value().end()).isEqualTo(4);
-            assertThat(valid.value().groupCount()).isEqualTo(1);
-            assertThat(valid.value().start(0)).isEqualTo(0);
-            assertThat(valid.value().end(0)).isEqualTo(4);
-            assertThat(valid.value().group(0)).isEqualTo("abcd");
-        });
         assertThat(Iterables.each(Strings.notBlank()).apply(Stream.of("a", "")).toEither()).hasLeftValueSatisfying(invalid -> {
             assertThat(invalid.violations()).singleElement().satisfies(violation -> {
                 assertThat(violation.key()).isEqualTo(key("fn4j.validation.Validators.Strings.notBlank"));
@@ -62,7 +48,7 @@ class ExampleTest {
         });
         assertThat(SumType.VALIDATOR.apply(new SumType("a", 3)).toEither()).hasLeftValueSatisfying(invalid -> {
             assertThat(invalid.violations()).singleElement().satisfies(violation -> {
-                assertThat(violation.key()).isEqualTo(key("fn4j.validation.Validators.Integers.greaterThanOrEqualTo"));
+                assertThat(violation.key()).isEqualTo(key("fn4j.validation.Validators.Integers.min"));
                 assertThat(violation.path()).singleElement().isEqualTo("b");
                 assertThat(violation).isExactlyInstanceOf(MessageViolation.class)
                                      .asInstanceOf(type(MessageViolation.class))
@@ -81,7 +67,7 @@ class ExampleTest {
                                          assertThat(messageViolation.message()).isEqualTo("a must not be blank");
                                      });
             }, atIndex(0)).satisfies(violation -> {
-                assertThat(violation.key()).isEqualTo(key("fn4j.validation.Validators.Integers.greaterThanOrEqualTo"));
+                assertThat(violation.key()).isEqualTo(key("fn4j.validation.Validators.Integers.min"));
                 assertThat(violation.path()).singleElement().isEqualTo("b");
                 assertThat(violation).isExactlyInstanceOf(MessageViolation.class)
                                      .asInstanceOf(type(MessageViolation.class))

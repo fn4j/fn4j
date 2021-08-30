@@ -2,6 +2,7 @@ package fn4j.validation;
 
 import io.vavr.control.Try;
 import net.jqwik.api.*;
+import net.jqwik.api.constraints.AlphaChars;
 import net.jqwik.api.constraints.CharRange;
 import net.jqwik.api.constraints.NotBlank;
 import net.jqwik.api.constraints.NotEmpty;
@@ -9,8 +10,11 @@ import net.jqwik.api.constraints.NotEmpty;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.UUID;
+import java.util.regex.MatchResult;
+import java.util.regex.Pattern;
 
 import static fn4j.validation.Violation.key;
+import static net.jqwik.api.Assume.that;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.vavr.api.VavrAssertions.assertThat;
 
@@ -206,7 +210,109 @@ class ValidatorsTest {
             }
         }
 
-        // TODO: pattern
+        @Group
+        @Label("pattern(java.lang.String)")
+        class StringsPatternStringTest {
+            @Property
+            @Label("should be valid if matches pattern")
+            void shouldBeValidIfMatchesPattern(@ForAll int i) {
+                // given
+                String string = Integer.toString(i);
+
+                // when
+                ValidationResult<MatchResult> result = Validators.Strings.pattern("-?[0-9]+").apply(string);
+
+                // then
+                assertThat(result.toValuesEither()).hasRightValueSatisfying(matchResult -> {
+                    assertThat(matchResult.start()).isEqualTo(0);
+                    assertThat(matchResult.end()).isEqualTo(string.length());
+                    assertThat(matchResult.groupCount()).isEqualTo(0);
+                });
+            }
+
+            @Example
+            @Label("should be invalid if null")
+            void shouldBeInvalidIfNull() {
+                // when
+                ValidationResult<MatchResult> result = Validators.Strings.pattern("-?[0-9]+").apply(null);
+
+                // then
+                assertThat(result.toValuesEither()).hasLeftValueSatisfying(violations -> {
+                    assertThat(violations).singleElement().satisfies(violation -> {
+                        assertThat(violation.key()).isEqualTo(key("fn4j.validation.Validators.notNull"));
+                        assertThat(violation.path()).isEmpty();
+                    });
+                });
+            }
+
+            @Property
+            @Label("should be invalid if not matches pattern")
+            void shouldBeInvalidIfNotMatchesPattern(@ForAll @AlphaChars String string) {
+                // when
+                ValidationResult<MatchResult> result = Validators.Strings.pattern("-?[0-9]+").apply(string);
+
+                // then
+                assertThat(result.toValuesEither()).hasLeftValueSatisfying(violations -> {
+                    assertThat(violations).singleElement().satisfies(violation -> {
+                        assertThat(violation.key()).isEqualTo(key("fn4j.validation.Validators.Strings.pattern"));
+                        assertThat(violation.path()).isEmpty();
+                    });
+                });
+            }
+        }
+
+        @Group
+        @Label("pattern(java.util.regex.Pattern)")
+        class StringsPatternPatternTest {
+            private final Pattern pattern = Pattern.compile("-?[0-9]+");
+
+            @Property
+            @Label("should be valid if matches pattern")
+            void shouldBeValidIfMatchesPattern(@ForAll int i) {
+                // given
+                String string = Integer.toString(i);
+
+                // when
+                ValidationResult<MatchResult> result = Validators.Strings.pattern(pattern).apply(string);
+
+                // then
+                assertThat(result.toValuesEither()).hasRightValueSatisfying(matchResult -> {
+                    assertThat(matchResult.start()).isEqualTo(0);
+                    assertThat(matchResult.end()).isEqualTo(string.length());
+                    assertThat(matchResult.groupCount()).isEqualTo(0);
+                });
+            }
+
+            @Example
+            @Label("should be invalid if null")
+            void shouldBeInvalidIfNull() {
+                // when
+                ValidationResult<MatchResult> result = Validators.Strings.pattern(pattern).apply(null);
+
+                // then
+                assertThat(result.toValuesEither()).hasLeftValueSatisfying(violations -> {
+                    assertThat(violations).singleElement().satisfies(violation -> {
+                        assertThat(violation.key()).isEqualTo(key("fn4j.validation.Validators.notNull"));
+                        assertThat(violation.path()).isEmpty();
+                    });
+                });
+            }
+
+            @Property
+            @Label("should be invalid if not matches pattern")
+            void shouldBeInvalidIfNotMatchesPattern(@ForAll @AlphaChars String string) {
+                // when
+                ValidationResult<MatchResult> result = Validators.Strings.pattern(pattern).apply(string);
+
+                // then
+                assertThat(result.toValuesEither()).hasLeftValueSatisfying(violations -> {
+                    assertThat(violations).singleElement().satisfies(violation -> {
+                        assertThat(violation.key()).isEqualTo(key("fn4j.validation.Validators.Strings.pattern"));
+                        assertThat(violation.path()).isEmpty();
+                    });
+                });
+            }
+        }
     }
 
     @Group
@@ -222,7 +328,7 @@ class ValidatorsTest {
             void shouldBeValidIfEqualOrGreaterThanMinimum(@ForAll int i,
                                                           @ForAll int minimum) {
                 // given
-                Assume.that(i >= minimum);
+                that(i >= minimum);
 
                 // when
                 ValidationResult<Integer> result = Validators.Integers.min(minimum).apply(i);
@@ -251,7 +357,7 @@ class ValidatorsTest {
             void shouldBeInvalidIfLessThanMinimum(@ForAll int i,
                                                   @ForAll int minimum) {
                 // given
-                Assume.that(i < minimum);
+                that(i < minimum);
 
                 // when
                 ValidationResult<Integer> result = Validators.Integers.min(minimum).apply(i);
@@ -275,7 +381,7 @@ class ValidatorsTest {
             void shouldBeValidIfEqualOrLessThanMaximum(@ForAll int i,
                                                        @ForAll int maximum) {
                 // given
-                Assume.that(i <= maximum);
+                that(i <= maximum);
 
                 // when
                 ValidationResult<Integer> result = Validators.Integers.max(maximum).apply(i);
@@ -304,7 +410,7 @@ class ValidatorsTest {
             void shouldBeInvalidIfGreaterThanMaximum(@ForAll int i,
                                                      @ForAll int maximum) {
                 // given
-                Assume.that(i > maximum);
+                that(i > maximum);
 
                 // when
                 ValidationResult<Integer> result = Validators.Integers.max(maximum).apply(i);
@@ -343,7 +449,7 @@ class ValidatorsTest {
                 assertThat(result.toValuesEither()).containsOnRight(uuid);
             }
 
-            @Property
+            @Example
             @Label("should be invalid if null")
             void shouldBeInvalidIfNull() {
                 // when
@@ -362,7 +468,7 @@ class ValidatorsTest {
             @Label("should be invalid")
             void shouldBeInvalid(@ForAll String string) {
                 // given
-                Assume.that(Try.of(() -> UUID.fromString(string)).isFailure());
+                that(Try.of(() -> UUID.fromString(string)).isFailure());
 
                 // when
                 ValidationResult<UUID> result = Validators.Uuids.uuidFromString().apply(string);
