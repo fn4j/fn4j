@@ -81,8 +81,8 @@ class ExampleTest {
         });
     }
 
-    static record SumType(String a,
-                          int b) {
+    record SumType(String a,
+                   int b) {
         private static final Validator<String, String> A_VALIDATOR = Strings.notBlank().withMessage(__ -> "a must not be blank");
         private static final Validator<Integer, Integer> B_VALIDATOR = Integers.min(4).withMessage(actual -> "b must not be less than 4, but was " + actual);
 

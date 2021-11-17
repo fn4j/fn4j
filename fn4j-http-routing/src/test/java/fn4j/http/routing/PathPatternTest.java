@@ -297,17 +297,17 @@ class PathPatternTest {
                                              actionValue));
     }
 
-    private static record Id(Major major, Minor minor) {
+    private record Id(Major major, Minor minor) {
         public static final PathPattern<Id> MATCH_SEGMENT = pathPattern(Major.MATCH_SEGMENT)
                 .slash(Minor.MATCH_SEGMENT)
                 .map(idParts -> idParts.apply(Id::new));
     }
 
-    private static record Major(String value) {
+    private record Major(String value) {
         public static final PathPattern<Major> MATCH_SEGMENT = string().map(Major::new);
     }
 
-    private static record Minor(BigInteger value) {
+    private record Minor(BigInteger value) {
         public static final PathPattern<Minor> MATCH_SEGMENT = bigInteger().map(Minor::new);
     }
 }

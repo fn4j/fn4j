@@ -35,10 +35,10 @@ public record BasicAuthenticationHeader(Username username,
                            });
     }
 
-    public static record Username(String value) {
+    public record Username(String value) {
     }
 
-    public static record Password(String value) {
+    public record Password(String value) {
     }
 
     private static String start(String value,
