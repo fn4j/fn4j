@@ -13,7 +13,9 @@ import java.util.UUID;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 
+import static fn4j.validation.ValidationResult.invalid;
 import static fn4j.validation.Violation.key;
+import static fn4j.validation.Violation.violation;
 import static net.jqwik.api.Assume.that;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.vavr.api.VavrAssertions.assertThat;
@@ -86,19 +88,9 @@ class ValidatorsTest {
 
             @Example
             @Label("should be invalid if empty")
-            void shouldBeInvalidIfEmpty() {
+            <A> void shouldBeInvalidIfEmpty() {
                 // given
-                Iterable<Object> emptyIterable = () -> new Iterator<>() {
-                    @Override
-                    public boolean hasNext() {
-                        return false;
-                    }
-
-                    @Override
-                    public Object next() {
-                        throw new NoSuchElementException();
-                    }
-                };
+                Iterable<A> emptyIterable = emptyIterable();
 
                 // when
                 ValidationResult<Iterable<?>> result = Validators.Iterables.notEmpty().apply(emptyIterable);
@@ -113,7 +105,46 @@ class ValidatorsTest {
             }
         }
 
-        // TODO: each
+        @Group
+        @Label("each")
+        class IterablesEachTest {
+
+            @Example
+            @Label("should be valid if empty")
+            <A> void shouldBeValidIfEmpty() {
+                // given
+                Iterable<A> iterable = emptyIterable();
+                Validator<A, A> alwaysInvalidValidator = alwaysInvalidValidator();
+
+                // when
+                ValidationResult<Iterable<A>> result = Validators.Iterables.each(alwaysInvalidValidator).apply(iterable);
+
+                // then
+                assertThat(result.toValuesEither()).containsRightSame(iterable);
+            }
+
+            // TODO: should be valid if all elements are valid
+
+            @Example
+            @Label("should be invalid if null")
+            <A> void shouldBeInvalidIfNull() {
+                // given
+                Validator<A, A> alwaysValidValidator = alwaysValidValidator();
+
+                // when
+                ValidationResult<Iterable<A>> result = Validators.Iterables.each(alwaysValidValidator).apply(null);
+
+                // then
+                assertThat(result.toValuesEither()).hasLeftValueSatisfying(violations -> {
+                    assertThat(violations).singleElement().satisfies(violation -> {
+                        assertThat(violation.key()).isEqualTo(key("fn4j.validation.Validators.notNull"));
+                        assertThat(violation.path()).isEmpty();
+                    });
+                });
+            }
+
+            // TODO: should be invalid if one ore more elements are invalid
+        }
     }
 
     @Group
@@ -121,7 +152,7 @@ class ValidatorsTest {
     class StringsTest {
 
         @Group
-        @Label("notBlank")
+        @Label("notEmpty")
         class StringsNotEmptyTest {
 
             @Property
@@ -482,5 +513,27 @@ class ValidatorsTest {
                 });
             }
         }
+    }
+
+    private static <A> Iterable<A> emptyIterable() {
+        return () -> new Iterator<>() {
+            @Override
+            public boolean hasNext() {
+                return false;
+            }
+
+            @Override
+            public A next() {
+                throw new NoSuchElementException();
+            }
+        };
+    }
+
+    private static <A> Validator<A, A> alwaysValidValidator() {
+        return ValidationResult::valid;
+    }
+
+    private static <A> Validator<A, A> alwaysInvalidValidator() {
+        return __ -> invalid(violation(key("fn4j.validation.ValidatorsTest.alwaysInvalidValidator")));
     }
 }
