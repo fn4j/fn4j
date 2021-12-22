@@ -10,7 +10,7 @@ import java.util.function.Function;
 public interface ValidationResult<A> extends Iterable<A> {
     Either<Invalid<A>, Valid<A>> toEither();
 
-    Either<? extends Seq<? extends Violation>, A> toValuesEither();
+    Either<Seq<Violation>, A> toValuesEither();
 
     <B> ValidationResult<B> map(Function<? super A, ? extends B> mapper);
 
@@ -35,11 +35,13 @@ public interface ValidationResult<A> extends Iterable<A> {
 
     static <A> ValidationResult<A> ofAll(A value,
                                          Iterable<? extends ValidationResult<?>> validations) {
-        return Stream.ofAll(validations)
-                     .foldLeft(valid(value),
-                               (accumulatedValidation, currentValidation) -> currentValidation.fold(currentInvalid -> accumulatedValidation.fold(accumulatedInvalid -> invalid(accumulatedInvalid.violations()
-                                                                                                                                                                                                 .appendAll(currentInvalid.violations())),
-                                                                                                                                                 __ -> invalid(currentInvalid.violations())),
-                                                                                                    __ -> accumulatedValidation));
+        return Stream.ofAll(validations).foldLeft(valid(value), (accumulatedValidation, currentValidation) -> {
+            return currentValidation.fold(currentInvalid -> {
+                return accumulatedValidation.fold(accumulatedInvalid -> {
+                    return invalid(accumulatedInvalid.violations()
+                                                     .appendAll(currentInvalid.violations()));
+                }, __ -> invalid(currentInvalid.violations()));
+            }, __ -> accumulatedValidation);
+        });
     }
 }

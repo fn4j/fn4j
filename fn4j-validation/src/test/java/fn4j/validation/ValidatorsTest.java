@@ -1,19 +1,22 @@
 package fn4j.validation;
 
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
+import io.vavr.collection.Set;
+import io.vavr.collection.Stream;
 import io.vavr.control.Try;
 import net.jqwik.api.*;
-import net.jqwik.api.constraints.AlphaChars;
-import net.jqwik.api.constraints.CharRange;
-import net.jqwik.api.constraints.NotBlank;
-import net.jqwik.api.constraints.NotEmpty;
+import net.jqwik.api.constraints.*;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Random;
 import java.util.UUID;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 
 import static fn4j.validation.ValidationResult.invalid;
+import static fn4j.validation.ValidationResult.valid;
 import static fn4j.validation.Violation.key;
 import static fn4j.validation.Violation.violation;
 import static net.jqwik.api.Assume.that;
@@ -123,7 +126,18 @@ class ValidatorsTest {
                 assertThat(result.toValuesEither()).containsRightSame(iterable);
             }
 
-            // TODO: should be valid if all elements are valid
+            @Property
+            @Label("should be valid if all elements are valid")
+            <A> void shouldBeValidIfAllElementsAreValid(@ForAll Iterable<A> iterable) {
+                // given
+                Validator<A, A> alwaysValidValidator = alwaysValidValidator();
+
+                // when
+                ValidationResult<Iterable<A>> result = Validators.Iterables.each(alwaysValidValidator).apply(iterable);
+
+                // then
+                assertThat(result.toValuesEither()).containsRightSame(iterable);
+            }
 
             @Example
             @Label("should be invalid if null")
@@ -143,7 +157,28 @@ class ValidatorsTest {
                 });
             }
 
-            // TODO: should be invalid if one ore more elements are invalid
+            @Property
+            @Label("should be invalid if one ore more elements are invalid")
+            <A> void shouldBeInvalidIfOneOrMoreElementsAreInvalid(@ForAll @NotEmpty @UniqueElements Iterable<A> iterable,
+                                                                  @ForAll Random random) {
+                // given
+                var invalid = Stream.ofAll(iterable).shuffle().zipWithIndex().filter(element -> {
+                    return element._2() == 0 || random.nextBoolean();
+                }).map(Tuple2::_1).toSet();
+
+                Validator<A, A> validator = invalidIfContainsValidator(invalid);
+
+                // when
+                ValidationResult<Iterable<A>> result = Validators.Iterables.each(validator).apply(iterable);
+
+                // then
+                assertThat(result.toValuesEither()).hasLeftValueSatisfying(violations -> {
+                    var expectedViolations = Stream.ofAll(iterable).zipWithIndex((element, index) -> {
+                        return Tuple.of(element, violation(key("fn4j.validation.ValidatorsTest.invalidIfContainsValidator")).mapPath(path -> path.append("[" + index + "]")));
+                    }).filter(elementAndViolation -> invalid.contains(elementAndViolation._1())).map(Tuple2::_2);
+                    assertThat(violations).containsExactlyElementsOf(expectedViolations);
+                });
+            }
         }
     }
 
@@ -535,5 +570,11 @@ class ValidatorsTest {
 
     private static <A> Validator<A, A> alwaysInvalidValidator() {
         return __ -> invalid(violation(key("fn4j.validation.ValidatorsTest.alwaysInvalidValidator")));
+    }
+
+    private <A> Validator<A, A> invalidIfContainsValidator(Set<A> invalid) {
+        return value -> invalid.contains(value)
+                ? invalid(violation(key("fn4j.validation.ValidatorsTest.invalidIfContainsValidator")))
+                : valid(value);
     }
 }

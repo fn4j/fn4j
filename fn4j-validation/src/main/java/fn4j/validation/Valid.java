@@ -13,7 +13,7 @@ public record Valid<A>(A value) implements ValidationResult<A> {
     }
 
     @Override
-    public Either<? extends Seq<? extends Violation>, A> toValuesEither() {
+    public Either<Seq<Violation>, A> toValuesEither() {
         return Either.right(value);
     }
 
