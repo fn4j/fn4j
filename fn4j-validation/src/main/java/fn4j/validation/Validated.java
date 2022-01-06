@@ -7,34 +7,34 @@ import io.vavr.control.Either;
 
 import java.util.function.Function;
 
-public interface ValidationResult<A> extends Iterable<A> {
+public interface Validated<A> extends Iterable<A> {
     Either<Invalid<A>, Valid<A>> toEither();
 
     Either<Seq<Violation>, A> toValuesEither();
 
-    <B> ValidationResult<B> map(Function<? super A, ? extends B> mapper);
+    <B> Validated<B> map(Function<? super A, ? extends B> mapper);
 
-    ValidationResult<A> mapInvalid(Function<Invalid<A>, Invalid<A>> mapper);
+    Validated<A> mapInvalid(Function<Invalid<A>, Invalid<A>> mapper);
 
-    <B> ValidationResult<B> flatMap(Function<? super A, ? extends ValidationResult<B>> mapper);
+    <B> Validated<B> flatMap(Function<? super A, ? extends Validated<B>> mapper);
 
     <B> B fold(Function<Invalid<A>, ? extends B> invalidMapper,
                Function<Valid<A>, ? extends B> validMapper);
 
-    static <A> ValidationResult<A> valid(A value) {
+    static <A> Validated<A> valid(A value) {
         return new Valid<>(value);
     }
 
-    static <A> ValidationResult<A> invalid(Violation... violations) {
+    static <A> Validated<A> invalid(Violation... violations) {
         return new Invalid<>(Array.of(violations));
     }
 
-    static <A> ValidationResult<A> invalid(Iterable<? extends Violation> violations) {
+    static <A> Validated<A> invalid(Iterable<? extends Violation> violations) {
         return new Invalid<>(Array.ofAll(violations));
     }
 
-    static <A> ValidationResult<A> ofAll(A value,
-                                         Iterable<? extends ValidationResult<?>> validations) {
+    static <A> Validated<A> ofAll(A value,
+                                  Iterable<? extends Validated<?>> validations) {
         return Stream.ofAll(validations).foldLeft(valid(value), (accumulatedValidation, currentValidation) -> {
             return currentValidation.fold(currentInvalid -> {
                 return accumulatedValidation.fold(accumulatedInvalid -> {

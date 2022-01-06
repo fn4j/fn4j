@@ -6,16 +6,29 @@ import io.vavr.collection.Stream;
 import java.util.function.Function;
 
 @FunctionalInterface
-public interface Validator<A, B> extends Function1<A, ValidationResult<B>> {
+public interface Validator<A, B> extends Function1<A, Validated<B>> {
     @Override
-    ValidationResult<B> apply(A value);
+    Validated<B> apply(A value);
 
-    default <C> Validator<A, C> map(Function<? super B, ? extends ValidationResult<C>> mapper) {
-        return value -> apply(value).flatMap(mapper);
+    @Override
+    default <C> Validator<C, B> compose(Function<? super C, ? extends A> mapper) {
+        return value -> apply(mapper.apply(value));
+    }
+
+    default <C> Validator<A, C> mapValid(Function<? super B, ? extends C> mapper) {
+        return value -> apply(value).map(mapper);
     }
 
     default Validator<A, B> mapInvalid(Function<Invalid<B>, Invalid<B>> mapper) {
         return value -> apply(value).mapInvalid(mapper);
+    }
+
+    default <C> Validator<A, C> and(Validator<? super B, C> mapper) {
+        return value -> apply(value).flatMap(mapper);
+    }
+
+    default Validator<A, A> inputAsOutput() {
+        return value -> mapValid(__ -> value).apply(value);
     }
 
     default Validator<A, B> withName(String name) {
@@ -38,12 +51,7 @@ public interface Validator<A, B> extends Function1<A, ValidationResult<B>> {
         });
     }
 
-    default <C> Validator<C, B> as(String name,
-                                   Function<? super C, ? extends A> extractor) {
-        return ((Validator<C, B>) value -> apply(extractor.apply(value))).withName(name);
-    }
-
-    static <A, B> Validator<A, B> of(Function<? super A, ? extends ValidationResult<B>> validator) {
+    static <A, B> Validator<A, B> of(Function<? super A, ? extends Validated<B>> validator) {
         return validator::apply;
     }
 
@@ -54,6 +62,6 @@ public interface Validator<A, B> extends Function1<A, ValidationResult<B>> {
     }
 
     static <A> Validator<A, A> ofAll(Iterable<? extends Validator<A, ?>> validators) {
-        return value -> ValidationResult.ofAll(value, Stream.ofAll(validators).map(validator -> validator.apply(value)));
+        return value -> Validated.ofAll(value, Stream.ofAll(validators).map(validator -> validator.apply(value)));
     }
 }

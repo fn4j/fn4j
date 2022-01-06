@@ -15,15 +15,15 @@ import java.util.UUID;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 
-import static fn4j.validation.ValidationResult.invalid;
-import static fn4j.validation.ValidationResult.valid;
+import static fn4j.validation.Validated.invalid;
+import static fn4j.validation.Validated.valid;
 import static fn4j.validation.Violation.key;
 import static fn4j.validation.Violation.violation;
 import static net.jqwik.api.Assume.that;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.vavr.api.VavrAssertions.assertThat;
 
-@Label("Validators")
+@Label("fn4j.validation.Validators")
 class ValidatorsTest {
 
     @Group
@@ -34,7 +34,7 @@ class ValidatorsTest {
         @Label("should be valid if not null")
         void shouldBeValidIfNotNull(@ForAll Object object) {
             // when
-            ValidationResult<Object> result = Validators.notNull().apply(object);
+            Validated<Object> result = Validators.notNull().apply(object);
 
             // then
             assertThat(result.toValuesEither()).containsRightSame(object);
@@ -44,7 +44,7 @@ class ValidatorsTest {
         @Label("should be invalid if null")
         void shouldBeInvalidIfNull() {
             // when
-            ValidationResult<Object> result = Validators.notNull().apply(null);
+            Validated<Object> result = Validators.notNull().apply(null);
 
             // then
             assertThat(result.toValuesEither()).hasLeftValueSatisfying(violations -> {
@@ -54,6 +54,11 @@ class ValidatorsTest {
                 });
             });
         }
+    }
+
+    @Group
+    @Label("move")
+    class MoveTest {
     }
 
     @Group
@@ -68,7 +73,7 @@ class ValidatorsTest {
             @Label("should be valid if not empty")
             void shouldBeValidIfNotEmpty(@ForAll @NotEmpty Iterable<?> iterable) {
                 // when
-                ValidationResult<Iterable<?>> result = Validators.Iterables.notEmpty().apply(iterable);
+                Validated<Iterable<?>> result = Validators.Iterables.notEmpty().apply(iterable);
 
                 // then
                 assertThat(result.toValuesEither()).containsRightSame(iterable);
@@ -78,7 +83,7 @@ class ValidatorsTest {
             @Label("should be invalid if null")
             void shouldBeInvalidIfNull() {
                 // when
-                ValidationResult<Iterable<?>> result = Validators.Iterables.notEmpty().apply(null);
+                Validated<Iterable<?>> result = Validators.Iterables.notEmpty().apply(null);
 
                 // then
                 assertThat(result.toValuesEither()).hasLeftValueSatisfying(violations -> {
@@ -96,7 +101,7 @@ class ValidatorsTest {
                 Iterable<A> emptyIterable = emptyIterable();
 
                 // when
-                ValidationResult<Iterable<?>> result = Validators.Iterables.notEmpty().apply(emptyIterable);
+                Validated<Iterable<?>> result = Validators.Iterables.notEmpty().apply(emptyIterable);
 
                 // then
                 assertThat(result.toValuesEither()).hasLeftValueSatisfying(violations -> {
@@ -120,7 +125,7 @@ class ValidatorsTest {
                 Validator<A, A> alwaysInvalidValidator = alwaysInvalidValidator();
 
                 // when
-                ValidationResult<Iterable<A>> result = Validators.Iterables.each(alwaysInvalidValidator).apply(iterable);
+                Validated<Iterable<A>> result = Validators.Iterables.each(alwaysInvalidValidator).apply(iterable);
 
                 // then
                 assertThat(result.toValuesEither()).containsRightSame(iterable);
@@ -133,7 +138,7 @@ class ValidatorsTest {
                 Validator<A, A> alwaysValidValidator = alwaysValidValidator();
 
                 // when
-                ValidationResult<Iterable<A>> result = Validators.Iterables.each(alwaysValidValidator).apply(iterable);
+                Validated<Iterable<A>> result = Validators.Iterables.each(alwaysValidValidator).apply(iterable);
 
                 // then
                 assertThat(result.toValuesEither()).containsRightSame(iterable);
@@ -146,7 +151,7 @@ class ValidatorsTest {
                 Validator<A, A> alwaysValidValidator = alwaysValidValidator();
 
                 // when
-                ValidationResult<Iterable<A>> result = Validators.Iterables.each(alwaysValidValidator).apply(null);
+                Validated<Iterable<A>> result = Validators.Iterables.each(alwaysValidValidator).apply(null);
 
                 // then
                 assertThat(result.toValuesEither()).hasLeftValueSatisfying(violations -> {
@@ -169,7 +174,7 @@ class ValidatorsTest {
                 Validator<A, A> validator = invalidIfContainsValidator(invalid);
 
                 // when
-                ValidationResult<Iterable<A>> result = Validators.Iterables.each(validator).apply(iterable);
+                Validated<Iterable<A>> result = Validators.Iterables.each(validator).apply(iterable);
 
                 // then
                 assertThat(result.toValuesEither()).hasLeftValueSatisfying(violations -> {
@@ -194,7 +199,7 @@ class ValidatorsTest {
             @Label("should be valid if not empty")
             void shouldBeValidIfNotEmpty(@ForAll @NotEmpty String string) {
                 // when
-                ValidationResult<String> result = Validators.Strings.notEmpty().apply(string);
+                Validated<String> result = Validators.Strings.notEmpty().apply(string);
 
                 // then
                 assertThat(result.toValuesEither()).containsRightSame(string);
@@ -204,7 +209,7 @@ class ValidatorsTest {
             @Label("should be invalid if null")
             void shouldBeInvalidIfNull() {
                 // when
-                ValidationResult<String> result = Validators.Strings.notEmpty().apply(null);
+                Validated<String> result = Validators.Strings.notEmpty().apply(null);
 
                 // then
                 assertThat(result.toValuesEither()).hasLeftValueSatisfying(violations -> {
@@ -219,7 +224,7 @@ class ValidatorsTest {
             @Label("should be invalid if empty")
             void shouldBeInvalidIfEmpty() {
                 // when
-                ValidationResult<String> result = Validators.Strings.notEmpty().apply("");
+                Validated<String> result = Validators.Strings.notEmpty().apply("");
 
                 // then
                 assertThat(result.toValuesEither()).hasLeftValueSatisfying(violations -> {
@@ -239,7 +244,7 @@ class ValidatorsTest {
             @Label("should be valid if not blank")
             void shouldBeValidIfNotBlank(@ForAll @NotBlank String string) {
                 // when
-                ValidationResult<String> result = Validators.Strings.notBlank().apply(string);
+                Validated<String> result = Validators.Strings.notBlank().apply(string);
 
                 // then
                 assertThat(result.toValuesEither()).containsRightSame(string);
@@ -249,7 +254,7 @@ class ValidatorsTest {
             @Label("should be invalid if null")
             void shouldBeInvalidIfNull() {
                 // when
-                ValidationResult<String> result = Validators.Strings.notBlank().apply(null);
+                Validated<String> result = Validators.Strings.notBlank().apply(null);
 
                 // then
                 assertThat(result.toValuesEither()).hasLeftValueSatisfying(violations -> {
@@ -264,7 +269,7 @@ class ValidatorsTest {
             @Label("should be invalid if blank")
             void shouldBeInvalidIfBlank(@ForAll @CharRange(to = ' ') String string) {
                 // when
-                ValidationResult<String> result = Validators.Strings.notBlank().apply(string);
+                Validated<String> result = Validators.Strings.notBlank().apply(string);
 
                 // then
                 assertThat(result.toValuesEither()).hasLeftValueSatisfying(violations -> {
@@ -277,6 +282,30 @@ class ValidatorsTest {
         }
 
         @Group
+        @Label("length(fn4j.validation.Validators.Length.Exact)")
+        class StringsLengthExactTest {
+            // TODO
+        }
+
+        @Group
+        @Label("length(fn4j.validation.Validators.Length.Minimum)")
+        class StringsLengthMinimumTest {
+            // TODO
+        }
+
+        @Group
+        @Label("length(fn4j.validation.Validators.Length.Maximum)")
+        class StringsLengthMaximumTest {
+            // TODO
+        }
+
+        @Group
+        @Label("length(fn4j.validation.Validators.Length.Range)")
+        class StringsLengthRangeTest {
+            // TODO
+        }
+
+        @Group
         @Label("pattern(java.lang.String)")
         class StringsPatternStringTest {
             @Property
@@ -286,7 +315,7 @@ class ValidatorsTest {
                 String string = Integer.toString(i);
 
                 // when
-                ValidationResult<MatchResult> result = Validators.Strings.pattern("-?[0-9]+").apply(string);
+                Validated<MatchResult> result = Validators.Strings.pattern("-?[0-9]+").apply(string);
 
                 // then
                 assertThat(result.toValuesEither()).hasRightValueSatisfying(matchResult -> {
@@ -300,7 +329,7 @@ class ValidatorsTest {
             @Label("should be invalid if null")
             void shouldBeInvalidIfNull() {
                 // when
-                ValidationResult<MatchResult> result = Validators.Strings.pattern("-?[0-9]+").apply(null);
+                Validated<MatchResult> result = Validators.Strings.pattern("-?[0-9]+").apply(null);
 
                 // then
                 assertThat(result.toValuesEither()).hasLeftValueSatisfying(violations -> {
@@ -315,7 +344,7 @@ class ValidatorsTest {
             @Label("should be invalid if not matches pattern")
             void shouldBeInvalidIfNotMatchesPattern(@ForAll @AlphaChars String string) {
                 // when
-                ValidationResult<MatchResult> result = Validators.Strings.pattern("-?[0-9]+").apply(string);
+                Validated<MatchResult> result = Validators.Strings.pattern("-?[0-9]+").apply(string);
 
                 // then
                 assertThat(result.toValuesEither()).hasLeftValueSatisfying(violations -> {
@@ -339,7 +368,7 @@ class ValidatorsTest {
                 String string = Integer.toString(i);
 
                 // when
-                ValidationResult<MatchResult> result = Validators.Strings.pattern(pattern).apply(string);
+                Validated<MatchResult> result = Validators.Strings.pattern(pattern).apply(string);
 
                 // then
                 assertThat(result.toValuesEither()).hasRightValueSatisfying(matchResult -> {
@@ -353,7 +382,7 @@ class ValidatorsTest {
             @Label("should be invalid if null")
             void shouldBeInvalidIfNull() {
                 // when
-                ValidationResult<MatchResult> result = Validators.Strings.pattern(pattern).apply(null);
+                Validated<MatchResult> result = Validators.Strings.pattern(pattern).apply(null);
 
                 // then
                 assertThat(result.toValuesEither()).hasLeftValueSatisfying(violations -> {
@@ -368,7 +397,7 @@ class ValidatorsTest {
             @Label("should be invalid if not matches pattern")
             void shouldBeInvalidIfNotMatchesPattern(@ForAll @AlphaChars String string) {
                 // when
-                ValidationResult<MatchResult> result = Validators.Strings.pattern(pattern).apply(string);
+                Validated<MatchResult> result = Validators.Strings.pattern(pattern).apply(string);
 
                 // then
                 assertThat(result.toValuesEither()).hasLeftValueSatisfying(violations -> {
@@ -397,7 +426,7 @@ class ValidatorsTest {
                 that(i >= minimum);
 
                 // when
-                ValidationResult<Integer> result = Validators.Integers.min(minimum).apply(i);
+                Validated<Integer> result = Validators.Integers.min(minimum).apply(i);
 
                 // then
                 assertThat(result.toValuesEither()).containsOnRight(i);
@@ -407,7 +436,7 @@ class ValidatorsTest {
             @Label("should be invalid if null")
             void shouldBeInvalidIfNull(@ForAll int minimum) {
                 // when
-                ValidationResult<Integer> result = Validators.Integers.min(minimum).apply(null);
+                Validated<Integer> result = Validators.Integers.min(minimum).apply(null);
 
                 // then
                 assertThat(result.toValuesEither()).hasLeftValueSatisfying(violations -> {
@@ -426,7 +455,7 @@ class ValidatorsTest {
                 that(i < minimum);
 
                 // when
-                ValidationResult<Integer> result = Validators.Integers.min(minimum).apply(i);
+                Validated<Integer> result = Validators.Integers.min(minimum).apply(i);
 
                 // then
                 assertThat(result.toValuesEither()).hasLeftValueSatisfying(violations -> {
@@ -450,7 +479,7 @@ class ValidatorsTest {
                 that(i <= maximum);
 
                 // when
-                ValidationResult<Integer> result = Validators.Integers.max(maximum).apply(i);
+                Validated<Integer> result = Validators.Integers.max(maximum).apply(i);
 
                 // then
                 assertThat(result.toValuesEither()).containsOnRight(i);
@@ -460,7 +489,7 @@ class ValidatorsTest {
             @Label("should be invalid if null")
             void shouldBeInvalidIfNull(@ForAll int maximum) {
                 // when
-                ValidationResult<Integer> result = Validators.Integers.max(maximum).apply(null);
+                Validated<Integer> result = Validators.Integers.max(maximum).apply(null);
 
                 // then
                 assertThat(result.toValuesEither()).hasLeftValueSatisfying(violations -> {
@@ -479,7 +508,7 @@ class ValidatorsTest {
                 that(i > maximum);
 
                 // when
-                ValidationResult<Integer> result = Validators.Integers.max(maximum).apply(i);
+                Validated<Integer> result = Validators.Integers.max(maximum).apply(i);
 
                 // then
                 assertThat(result.toValuesEither()).hasLeftValueSatisfying(violations -> {
@@ -509,7 +538,7 @@ class ValidatorsTest {
                 String uuidString = uuid.toString();
 
                 // when
-                ValidationResult<UUID> result = Validators.Uuids.uuidFromString().apply(uuidString);
+                Validated<UUID> result = Validators.Uuids.uuidFromString().apply(uuidString);
 
                 // then
                 assertThat(result.toValuesEither()).containsOnRight(uuid);
@@ -519,7 +548,7 @@ class ValidatorsTest {
             @Label("should be invalid if null")
             void shouldBeInvalidIfNull() {
                 // when
-                ValidationResult<UUID> result = Validators.Uuids.uuidFromString().apply(null);
+                Validated<UUID> result = Validators.Uuids.uuidFromString().apply(null);
 
                 // then
                 assertThat(result.toValuesEither()).hasLeftValueSatisfying(violations -> {
@@ -537,7 +566,7 @@ class ValidatorsTest {
                 that(Try.of(() -> UUID.fromString(string)).isFailure());
 
                 // when
-                ValidationResult<UUID> result = Validators.Uuids.uuidFromString().apply(string);
+                Validated<UUID> result = Validators.Uuids.uuidFromString().apply(string);
 
                 // then
                 assertThat(result.toValuesEither()).hasLeftValueSatisfying(violations -> {
@@ -565,7 +594,7 @@ class ValidatorsTest {
     }
 
     private static <A> Validator<A, A> alwaysValidValidator() {
-        return ValidationResult::valid;
+        return Validated::valid;
     }
 
     private static <A> Validator<A, A> alwaysInvalidValidator() {

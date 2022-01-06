@@ -6,7 +6,7 @@ import io.vavr.control.Either;
 import java.util.Iterator;
 import java.util.function.Function;
 
-public record Valid<A>(A value) implements ValidationResult<A> {
+public record Valid<A>(A value) implements Validated<A> {
     @Override
     public Either<Invalid<A>, Valid<A>> toEither() {
         return Either.right(this);
@@ -18,17 +18,17 @@ public record Valid<A>(A value) implements ValidationResult<A> {
     }
 
     @Override
-    public <B> ValidationResult<B> map(Function<? super A, ? extends B> mapper) {
+    public <B> Validated<B> map(Function<? super A, ? extends B> mapper) {
         return new Valid<>(mapper.apply(value));
     }
 
     @Override
-    public ValidationResult<A> mapInvalid(Function<Invalid<A>, Invalid<A>> mapper) {
+    public Validated<A> mapInvalid(Function<Invalid<A>, Invalid<A>> mapper) {
         return this;
     }
 
     @Override
-    public <B> ValidationResult<B> flatMap(Function<? super A, ? extends ValidationResult<B>> mapper) {
+    public <B> Validated<B> flatMap(Function<? super A, ? extends Validated<B>> mapper) {
         return mapper.apply(value);
     }
 
