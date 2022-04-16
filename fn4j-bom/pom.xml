@@ -37,12 +37,22 @@
         <dependencies>
             <dependency>
                 <groupId>com.github.fn4j.fn4j</groupId>
+                <artifactId>fn4j-http-apachehc-shared</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.fn4j.fn4j</groupId>
                 <artifactId>fn4j-http-answering</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.github.fn4j.fn4j</groupId>
                 <artifactId>fn4j-http-client</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.fn4j.fn4j</groupId>
+                <artifactId>fn4j-http-client-apachehc</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

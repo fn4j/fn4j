@@ -18,12 +18,12 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 import java.io.IOException;
 import java.util.function.Function;
 
+import static fn4j.http.apachehc.shared.ApacheHc2Fn4j.requestHead;
+import static fn4j.http.apachehc.shared.Fn4j2ApacheHc.asyncResponseProducer;
 import static fn4j.http.core.Body.maybeBody;
 import static fn4j.http.core.Status.BAD_REQUEST;
 import static fn4j.http.core.Status.INTERNAL_SERVER_ERROR;
 import static fn4j.http.server.apachehc.ApacheHcServer.LOG;
-import static fn4j.http.server.apachehc.Conversions.ApacheHc.asyncResponseProducer;
-import static fn4j.http.server.apachehc.Conversions.requestHead;
 
 public class HandlerAsyncServerRequestHandler implements AsyncServerRequestHandler<Message<HttpRequest, byte[]>> {
     private final Function<? super Request<byte[]>, ? extends Future<Response<byte[]>>> handler;
