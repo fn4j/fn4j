@@ -3,6 +3,7 @@ package fn4j.http.server.apachehc;
 import fn4j.http.core.Request;
 import fn4j.http.core.Response;
 import fn4j.http.server.Server;
+import fn4j.http.shared.Closer;
 import io.vavr.concurrent.Future;
 import io.vavr.concurrent.Promise;
 import io.vavr.control.Option;
@@ -21,7 +22,7 @@ import static org.apache.hc.core5.http.URIScheme.HTTP;
 import static org.apache.hc.core5.io.CloseMode.GRACEFUL;
 
 public class ApacheHcServer implements Server {
-    public static final Logger LOG = LoggerFactory.getLogger(ApacheHcServer.class);
+    static final Logger LOG = LoggerFactory.getLogger(ApacheHcServer.class);
 
     private final InetSocketAddress inetSocketAddress;
     private final Option<CloseMode> maybeShutdownAutoCloseMode;
@@ -61,8 +62,8 @@ public class ApacheHcServer implements Server {
                          }
 
                          @Override
-                         public Future<Void> awaitClose() {
-                             return promise.future().await();
+                         public Future<Void> onClose() {
+                             return promise.future();
                          }
                      });
     }

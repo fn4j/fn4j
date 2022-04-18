@@ -10,7 +10,7 @@
         <version>0.0.1</version>
     </parent>
 
-    <artifactId>fn4j-http-server</artifactId>
+    <artifactId>fn4j-http-shared</artifactId>
 
     <licenses>
         <license>
@@ -22,16 +22,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.github.fn4j.fn4j</groupId>
-            <artifactId>fn4j-http-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.github.fn4j.fn4j</groupId>
-            <artifactId>fn4j-http-shared</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.github.fn4j.fn4j</groupId>
-            <artifactId>fn4j-net-uri</artifactId>
+            <groupId>io.vavr</groupId>
+            <artifactId>vavr</artifactId>
         </dependency>
     </dependencies>
 

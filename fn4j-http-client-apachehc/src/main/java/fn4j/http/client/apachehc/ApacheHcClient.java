@@ -8,27 +8,36 @@ import fn4j.http.core.Response;
 import io.vavr.concurrent.Future;
 import io.vavr.concurrent.Promise;
 import io.vavr.control.Option;
+import org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient;
+import org.apache.hc.client5.http.impl.async.HttpAsyncClients;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.Message;
-import org.apache.hc.core5.http.impl.bootstrap.AsyncRequesterBootstrap;
-import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.nio.entity.BasicAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
+import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.util.Timeout;
 
 import java.io.IOException;
 
 import static fn4j.http.apachehc.shared.Fn4j2ApacheHc.asyncRequestProducer;
 import static fn4j.http.apachehc.shared.PromiseFutureCallback.futureCallback;
+import static java.lang.Runtime.getRuntime;
+import static org.apache.hc.core5.io.CloseMode.GRACEFUL;
 
 public class ApacheHcClient implements Client, AutoCloseable {
-    private final Timeout timeout;
-    private final HttpAsyncRequester httpAsyncRequester;
+    private final CloseableHttpAsyncClient closeableHttpAsyncClient;
 
     public ApacheHcClient(Option<RequestTimeout> maybeRequestTimeout) {
-        this.timeout = maybeRequestTimeout.fold(() -> Timeout.DISABLED,
-                                                requestTimeout -> Timeout.ofNanoseconds(requestTimeout.value().toNanos()));
-        httpAsyncRequester = AsyncRequesterBootstrap.bootstrap().create();
+        Timeout timeout = maybeRequestTimeout.fold(() -> Timeout.DISABLED,
+                                                   requestTimeout -> Timeout.ofNanoseconds(requestTimeout.value().toNanos()));
+        var ioReactorConfig = IOReactorConfig.custom()
+                                             .setSoTimeout(timeout)
+                                             .build();
+        closeableHttpAsyncClient = HttpAsyncClients.custom()
+                                                   .setIOReactorConfig(ioReactorConfig)
+                                                   .build();
+        getRuntime().addShutdownHook(new Thread(() -> closeableHttpAsyncClient.close(GRACEFUL)));
+        closeableHttpAsyncClient.start();
     }
 
     public static ApacheHcClientBuilder builder() {
@@ -38,15 +47,14 @@ public class ApacheHcClient implements Client, AutoCloseable {
     @Override
     public Future<Response<byte[]>> exchange(Request<byte[]> request) {
         var promise = Promise.<Message<HttpResponse, byte[]>>make();
-        httpAsyncRequester.execute(asyncRequestProducer(request),
-                                   new BasicResponseConsumer<>(new BasicAsyncEntityConsumer()),
-                                   timeout,
-                                   futureCallback(promise));
+        closeableHttpAsyncClient.execute(asyncRequestProducer(request),
+                                         new BasicResponseConsumer<>(new BasicAsyncEntityConsumer()),
+                                         futureCallback(promise));
         return promise.future().map(ApacheHc2Fn4j::response);
     }
 
     @Override
     public void close() throws IOException {
-        httpAsyncRequester.close();
+        closeableHttpAsyncClient.close();
     }
 }

@@ -32,7 +32,8 @@ public class ApacheHcServerTest {
         var server = ApacheHcServer.builder()
                                    .inetSocketAddress(inetSocketAddress)
                                    .noShutdownAutoCloseMode()
-                                   .handler(request -> Future.successful(response(OK, Headers.empty(), request.maybeBody()))).build();
+                                   .handler(request -> Future.successful(response(OK, Headers.empty(), request.maybeBody())))
+                                   .build();
 
         try (var closer = server.open().await(2, SECONDS).get()) {
             var httpClient = HttpClient.newHttpClient();

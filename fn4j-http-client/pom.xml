@@ -25,6 +25,10 @@
             <groupId>com.github.fn4j.fn4j</groupId>
             <artifactId>fn4j-http-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.github.fn4j.fn4j</groupId>
+            <artifactId>fn4j-http-shared</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>io.vavr</groupId>

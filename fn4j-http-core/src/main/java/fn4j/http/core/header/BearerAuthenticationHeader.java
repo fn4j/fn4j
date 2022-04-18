@@ -24,6 +24,9 @@ public record BearerAuthenticationHeader(Token token) implements Header {
                            .map(BearerAuthenticationHeader::new);
     }
 
-    public static record Token(String value) {
+    public record Token(String value) {
+        public static Token token(String value) {
+            return new Token(value);
+        }
     }
 }
