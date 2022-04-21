@@ -1,7 +1,7 @@
 package fn4j.http.core;
 
 public record ReasonPhrase(String value) {
-    public static final String OK_VALUE = "Ok";
+    public static final String OK_VALUE = "OK";
     public static final ReasonPhrase OK = new ReasonPhrase(OK_VALUE);
 
     public static final String CREATED_VALUE = "Created";

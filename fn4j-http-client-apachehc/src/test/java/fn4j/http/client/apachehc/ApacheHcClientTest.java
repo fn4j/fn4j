@@ -1,76 +1,111 @@
 package fn4j.http.client.apachehc;
 
-import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
-import fn4j.http.core.Body;
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.VerificationException;
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import fn4j.http.core.Method;
+import fn4j.http.core.Request;
 import fn4j.http.core.Response;
 import fn4j.http.core.header.Headers;
-import fn4j.net.uri.Path;
-import fn4j.net.uri.Query;
 import fn4j.net.uri.Uri;
-import fn4j.net.uri.UriComponent;
-import io.vavr.collection.Stream;
 import io.vavr.concurrent.Future;
-import net.jqwik.api.ForAll;
-import net.jqwik.api.Label;
-import net.jqwik.api.Property;
+import net.jqwik.api.*;
+import net.jqwik.api.lifecycle.*;
+import net.jqwik.api.providers.TypeUsage;
+import org.opentest4j.AssertionFailedError;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import java.util.List;
+import java.util.Optional;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static fn4j.http.core.Method.*;
 import static fn4j.http.core.Request.request;
-import static fn4j.net.uri.Literal.QUESTION_MARK;
-import static io.vavr.API.TODO;
+import static fn4j.http.core.Status.OK;
+import static fn4j.http.core.StatusCode.OK_VALUE;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static net.jqwik.api.lifecycle.Lifespan.RUN;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.vavr.api.VavrAssertions.assertThat;
 
 @Label("Apache HTTP Components Client")
+@AddLifecycleHook(value = ApacheHcClientTest.WireMockServerHook.class, propagateTo = PropagationMode.ALL_DESCENDANTS)
 class ApacheHcClientTest {
     @Property
     @Label("should exchange request and response")
-    void shouldExchangeRequestAndResponse(@ForAll Method method,
-                                          @ForAll Path path,
-                                          @ForAll Query query,
-                                          @ForAll Headers headers,
-                                          @ForAll byte[] body) throws Exception {
+    void shouldExchangeRequestAndResponse(WireMockServer server,
+                                          @ForAll("safe") Method method) throws Exception {
         // given
-        WireMockExtension server = WireMockExtension.newInstance()
-                                                    .options(wireMockConfig().dynamicPort())
-                                                    .failOnUnmatchedRequests(true)
-                                                    .build();
-        try {
-            var pathAndQueryString = Stream.<UriComponent>empty()
-                                           .appendAll(path.pathSegments())
-                                           .append(QUESTION_MARK)
-                                           .append(query)
-                                           .map(UriComponent::encode)
-                                           .mkString();
-            var uri = new Uri(server.url(pathAndQueryString));
-            var request = request(method,
-                                  uri,
-                                  headers,
-                                  new Body<>(body));
+        Request<byte[]> request = request(method,
+                                          new Uri(server.baseUrl()),
+                                          Headers.empty());
 
-            try (var apacheHcClient = ApacheHcClient.builder().build()) {
-                server.givenThat(
-                        post(urlEqualTo(pathAndQueryString))
-                                .withHeader("name", equalTo("value"))
-                                .withHeader("Authentication", equalTo("Bearer token"))
-                                .withRequestBody(equalTo("Body"))
-                                .willReturn(
-                                        aResponse().withBody(new byte[]{(byte) 0x80})
-                                )
-                );
+        try (var apacheHcClient = ApacheHcClient.builder().build()) {
+            server.givenThat(WireMock.request(method.value(), UrlPattern.ANY).willReturn(aResponse().withStatus(OK_VALUE)));
 
-                // when
-                Future<Response<byte[]>> eventualResponse = apacheHcClient.exchange(request);
+            // when
+            Future<Response<byte[]>> eventualResponse = apacheHcClient.exchange(request);
 
-                // then
-                assertThat(eventualResponse.await(2, SECONDS).toTry()).isSuccess().hasValueSatisfying(response -> {
-                    TODO();
-                });
+            // then
+            assertThat(eventualResponse.await(2, SECONDS).toTry()).isSuccess().hasValueSatisfying(response -> {
+                assertThat(response.status()).isEqualTo(OK);
+            });
+        }
+    }
+
+    @Provide
+    Arbitrary<?> safe(TypeUsage typeUsage) {
+        if (typeUsage.isOfType(Method.class)) {
+            return Arbitraries.of(GET, HEAD, POST, PUT, DELETE, OPTIONS, PATCH);
+        }
+        return Arbitraries.forType(typeUsage.getRawType());
+    }
+
+    static class WireMockServerHook implements BeforeContainerHook, ResolveParameterHook, AroundTryHook {
+        @Override
+        public void beforeContainer(ContainerLifecycleContext context) {
+            Store.create(ClosingWireMockServer.class, RUN, () -> {
+                var server = new WireMockServer(wireMockConfig().dynamicPort());
+                server.start();
+                return new ClosingWireMockServer(server);
+            });
+        }
+
+        @Override
+        public Optional<ParameterSupplier> resolve(ParameterResolutionContext parameterContext,
+                                                   LifecycleContext lifecycleContext) {
+            if (parameterContext.typeUsage().isOfType(WireMockServer.class)) {
+                return Optional.of(__ -> getWireMockServerFromStore());
             }
-        } finally {
-            server.shutdownServer();
+            return Optional.empty();
+        }
+
+        @Override
+        public TryExecutionResult aroundTry(TryLifecycleContext context,
+                                            TryExecutor aTry,
+                                            List<Object> parameters) {
+            var originalTryExecutionResult = aTry.execute(parameters);
+            var wireMockServer = getWireMockServerFromStore();
+            try {
+                wireMockServer.checkForUnmatchedRequests();
+            } catch (VerificationException verificationException) {
+                return TryExecutionResult.falsified(new AssertionFailedError(verificationException.getMessage(), verificationException));
+            } finally {
+                wireMockServer.resetAll();
+            }
+            return originalTryExecutionResult;
+        }
+
+        private WireMockServer getWireMockServerFromStore() {
+            return Store.<ClosingWireMockServer>get(ClosingWireMockServer.class).get().wireMockServer();
+        }
+
+        private record ClosingWireMockServer(WireMockServer wireMockServer) implements Store.CloseOnReset {
+            @Override
+            public void close() {
+                wireMockServer.stop();
+            }
         }
     }
 }

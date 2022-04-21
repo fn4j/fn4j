@@ -27,7 +27,7 @@
         <slf4j.version>1.7.30</slf4j.version>
         <apachehc.version>5.1.3</apachehc.version>
         <junit.version>5.7.2</junit.version>
-        <jqwik.version>1.5.3</jqwik.version>
+        <jqwik.version>1.6.5</jqwik.version>
         <mockito.version>3.11.2</mockito.version>
         <assertj.version>3.20.2</assertj.version>
         <assertj-vavr.version>0.4.2</assertj-vavr.version>
