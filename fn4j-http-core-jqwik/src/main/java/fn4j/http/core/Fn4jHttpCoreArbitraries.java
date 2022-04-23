@@ -21,7 +21,7 @@ public final class Fn4jHttpCoreArbitraries {
     }
 
     public static <B> Arbitrary<Body<B>> bodies(Class<B> valueClass) {
-        return forType(valueClass).map(Body::new);
+        return defaultFor(valueClass).map(Body::new);
     }
 
     public static Arbitrary<Head> heads() {

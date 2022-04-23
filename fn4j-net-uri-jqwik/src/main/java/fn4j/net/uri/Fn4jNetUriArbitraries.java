@@ -22,7 +22,7 @@ public final class Fn4jNetUriArbitraries {
     }
 
     public static Arbitrary<Fragment> fragments() {
-        return strings().map(Fragment::new);
+        return urlDecodeSafeStrings(true).map(Fragment::new);
     }
 
     public static Arbitrary<Host> hosts() {

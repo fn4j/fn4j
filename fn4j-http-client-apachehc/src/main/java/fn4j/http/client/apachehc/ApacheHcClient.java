@@ -28,8 +28,8 @@ public class ApacheHcClient implements Client, AutoCloseable {
     private final CloseableHttpAsyncClient closeableHttpAsyncClient;
 
     public ApacheHcClient(Option<RequestTimeout> maybeRequestTimeout) {
-        Timeout timeout = maybeRequestTimeout.fold(() -> Timeout.DISABLED,
-                                                   requestTimeout -> Timeout.ofNanoseconds(requestTimeout.value().toNanos()));
+        var timeout = maybeRequestTimeout.fold(() -> Timeout.DISABLED,
+                                               requestTimeout -> Timeout.ofNanoseconds(requestTimeout.value().toNanos()));
         var ioReactorConfig = IOReactorConfig.custom()
                                              .setSoTimeout(timeout)
                                              .build();
