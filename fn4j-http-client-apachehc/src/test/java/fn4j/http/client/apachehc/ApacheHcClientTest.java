@@ -8,10 +8,9 @@ import fn4j.http.core.Method;
 import fn4j.http.core.Request;
 import fn4j.http.core.Response;
 import fn4j.http.core.header.Headers;
-import fn4j.net.uri.Authority;
-import fn4j.net.uri.Path;
-import fn4j.net.uri.Port;
-import fn4j.net.uri.Uri;
+import fn4j.net.uri.*;
+import io.vavr.collection.Seq;
+import io.vavr.collection.Stream;
 import io.vavr.concurrent.Future;
 import io.vavr.control.Option;
 import net.jqwik.api.*;
@@ -21,9 +20,10 @@ import net.jqwik.api.providers.TypeUsage;
 import net.jqwik.api.statistics.NumberRangeHistogram;
 import net.jqwik.api.statistics.Statistics;
 import net.jqwik.api.statistics.StatisticsReport;
+import org.assertj.core.api.Assertions;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.any;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static fn4j.http.client.apachehc.ApacheHcClientTest.ArbitraryUriComponentsParent.concat;
 import static fn4j.http.client.apachehc.TickTock.tick;
 import static fn4j.http.core.Fn4jHttpCoreArbitraries.bodies;
 import static fn4j.http.core.Fn4jHttpCoreArbitraries.headers;
@@ -31,6 +31,7 @@ import static fn4j.http.core.Method.*;
 import static fn4j.http.core.Request.request;
 import static fn4j.net.uri.Fn4jNetUriArbitraries.uris;
 import static fn4j.net.uri.Host.LOCALHOST;
+import static fn4j.net.uri.Literal.QUESTION_MARK;
 import static fn4j.net.uri.Scheme.HTTP;
 import static fn4j.net.uri.Scheme.HTTPS;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -85,7 +86,7 @@ class ApacheHcClientTest {
         }
     }
 
-    @Property(tries = 100)
+    @Property(tries = 200)
     @Label("should exchange request and response")
     void shouldExchangeRequestAndResponse(WireMockServer server,
                                           @ForAll("requests") Request<byte[]> request) throws Exception {
@@ -102,6 +103,17 @@ class ApacheHcClientTest {
 
             // then no exception is thrown
         }
+    }
+
+    @Property
+    void foobar(@ForAll Uri uri) {
+        Assume.that(uri.maybeScheme().exists(scheme -> scheme.encode().length() > 0));
+        Assertions.assertThat(uri.encode()).isEqualTo(uri.asJavaURI().toASCIIString());
+    }
+
+    @Example
+    void foobar1() {
+        Assertions.assertThat(new Uri("http://localhost/path?query=").encode()).isEqualTo("http://localhost/path?query=");
     }
 
     private static <A> Request<A> againstWireMock(WireMockServer server,
@@ -122,7 +134,18 @@ class ApacheHcClientTest {
     }
 
     private MappingBuilder requestMatcher(Request<byte[]> request) {
-        return WireMock.any(UrlPattern.ANY);
+        var path = request.uri().path().components();
+        var queryComponents = request.uri().queryParameters().components();
+        var querySeparatorComponents = queryComponents.nonEmpty() ? Stream.<UriComponent>of(QUESTION_MARK) : Stream.<UriComponent>empty();
+        var pathAndQuery = concat(path, querySeparatorComponents, queryComponents).encode();
+        var urlPattern = urlEqualTo(pathAndQuery);
+
+        var withoutBody = WireMock.request(request.method().value(),
+                                           urlPattern);
+
+        return request.maybeBody()
+                      .fold(() -> withoutBody,
+                            body -> withoutBody.withRequestBody(binaryEqualTo(body.value())));
     }
 
     private void consume(Future<Response<byte[]>> eventualResponse,
@@ -155,5 +178,16 @@ class ApacheHcClientTest {
                                 )
                         )
                 );
+    }
+
+    public record ArbitraryUriComponentsParent(Seq<UriComponent> components) implements UriComponentParent {
+        public static ArbitraryUriComponentsParent arbitraryComponents(Seq<UriComponent> components) {
+            return new ArbitraryUriComponentsParent(components);
+        }
+
+        @SafeVarargs
+        public static ArbitraryUriComponentsParent concat(Iterable<UriComponent>... iterables) {
+            return arbitraryComponents(Stream.concat(iterables));
+        }
     }
 }
