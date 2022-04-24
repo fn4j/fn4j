@@ -35,11 +35,99 @@ import static fn4j.net.uri.Literal.QUESTION_MARK;
 import static fn4j.net.uri.Scheme.HTTP;
 import static fn4j.net.uri.Scheme.HTTPS;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static net.jqwik.api.Combinators.combine;
 
 @Label("Apache HTTP Components Client")
 @AddLifecycleHook(value = WireMockServerHook.class, propagateTo = PropagationMode.ALL_DESCENDANTS)
 @StatisticsReport(format = NumberRangeHistogram.class)
 class ApacheHcClientTest {
+    @Property(tries = 200)
+    @Label("should exchange request and response")
+    void shouldExchangeRequestAndResponse(WireMockServer server,
+                                          @ForAll("requests") Request<byte[]> request) throws Exception {
+        // given
+        request = againstWireMock(server, request);
+        try (var apacheHcClient = ApacheHcClient.builder().build()) {
+            server.givenThat(requestMatches(request).willReturn(aResponse()));
+
+            var tick = tick();
+
+            // when
+            var eventualResponse = apacheHcClient.exchange(request);
+            consume(eventualResponse, tick);
+
+            // then no exception is thrown
+        }
+    }
+
+    @Provide
+    Arbitrary<Request<byte[]>> requests() {
+        var methodArbitrary = Arbitraries.of(GET, HEAD, POST, PUT, DELETE, OPTIONS, PATCH);
+        var uriArbitrary = uris().filter(uri -> uri.encode().length() < 8000);
+        var headersArbitrary = headers().filter(headers -> headers.toString().length() < 8000);
+        var maybeBodyArbitrary = bodies(byte[].class).optional().map(Option::ofOptional);
+
+        return combine(methodArbitrary,
+                       uriArbitrary,
+                       headersArbitrary,
+                       maybeBodyArbitrary).as(Request::request);
+    }
+
+    private static <A> Request<A> againstWireMock(WireMockServer server,
+                                                  Request<A> request) {
+        boolean httpsEnabled = server.getOptions().httpsSettings().enabled();
+        var port = new Port(httpsEnabled ? server.httpsPort() : server.port());
+        var uri = new Uri(Option.of(httpsEnabled ? HTTPS : HTTP),
+                          Option.of(new Authority(Option.none(),
+                                                  LOCALHOST,
+                                                  Option.of(port))),
+                          request.uri().path(),
+                          request.uri().maybeQuery(),
+                          request.uri().maybeFragment());
+        return request(request.method(),
+                       uri,
+                       request.headers(),
+                       request.maybeBody());
+    }
+
+    private MappingBuilder requestMatches(Request<byte[]> request) {
+        var path = request.uri().path().components();
+        var queryComponents = request.uri().queryParameters().components();
+        var querySeparatorComponents = queryComponents.nonEmpty() ? Stream.<UriComponent>of(QUESTION_MARK) : Stream.<UriComponent>empty();
+        var pathAndQuery = concat(path, querySeparatorComponents, queryComponents).encode();
+        var urlPattern = urlEqualTo(pathAndQuery);
+
+        var mappingBuilder = WireMock.request(request.method().value(), urlPattern);
+
+        request.headers().forEach(header -> {
+            mappingBuilder.withHeader(header._1().value(), equalTo(header._2().value()));
+        });
+
+        request.maybeBody().forEach(body -> {
+            mappingBuilder.withRequestBody(binaryEqualTo(body.value()));
+        });
+
+        return mappingBuilder;
+    }
+
+    private void consume(Future<Response<byte[]>> eventualResponse,
+                         TickTock.Tick tick) {
+        eventualResponse.await(2, SECONDS);
+        var tickTock = tick.tock();
+        Statistics.label("duration in ms").collect(tickTock.duration());
+    }
+
+    public record ArbitraryUriComponentsParent(Seq<UriComponent> components) implements UriComponentParent {
+        public static ArbitraryUriComponentsParent arbitraryComponents(Seq<UriComponent> components) {
+            return new ArbitraryUriComponentsParent(components);
+        }
+
+        @SafeVarargs
+        public static ArbitraryUriComponentsParent concat(Iterable<? extends UriComponent>... iterables) {
+            return arbitraryComponents(Stream.concat(iterables));
+        }
+    }
+
     @Property
     @Label("should send method")
     void shouldSendMethod(WireMockServer server,
@@ -86,25 +174,6 @@ class ApacheHcClientTest {
         }
     }
 
-    @Property(tries = 200)
-    @Label("should exchange request and response")
-    void shouldExchangeRequestAndResponse(WireMockServer server,
-                                          @ForAll("requests") Request<byte[]> request) throws Exception {
-        // given
-        var requestAgainstWireMockServer = againstWireMock(server, request);
-        try (var apacheHcClient = ApacheHcClient.builder().build()) {
-            server.givenThat(requestMatcher(requestAgainstWireMockServer).willReturn(aResponse()));
-
-            var tick = tick();
-
-            // when
-            var eventualResponse = apacheHcClient.exchange(requestAgainstWireMockServer);
-            consume(eventualResponse, tick);
-
-            // then no exception is thrown
-        }
-    }
-
     @Property
     void foobar(@ForAll Uri uri) {
         Assume.that(uri.maybeScheme().exists(scheme -> scheme.encode().length() > 0));
@@ -116,78 +185,11 @@ class ApacheHcClientTest {
         Assertions.assertThat(new Uri("http://localhost/path?query=").encode()).isEqualTo("http://localhost/path?query=");
     }
 
-    private static <A> Request<A> againstWireMock(WireMockServer server,
-                                                  Request<A> request) {
-        boolean httpsEnabled = server.getOptions().httpsSettings().enabled();
-        var port = new Port(httpsEnabled ? server.httpsPort() : server.port());
-        var uri = new Uri(Option.of(httpsEnabled ? HTTPS : HTTP),
-                          Option.of(new Authority(Option.none(),
-                                                  LOCALHOST,
-                                                  Option.of(port))),
-                          request.uri().path(),
-                          request.uri().maybeQuery(),
-                          request.uri().maybeFragment());
-        return request(request.method(),
-                       uri,
-                       request.headers(),
-                       request.maybeBody());
-    }
-
-    private MappingBuilder requestMatcher(Request<byte[]> request) {
-        var path = request.uri().path().components();
-        var queryComponents = request.uri().queryParameters().components();
-        var querySeparatorComponents = queryComponents.nonEmpty() ? Stream.<UriComponent>of(QUESTION_MARK) : Stream.<UriComponent>empty();
-        var pathAndQuery = concat(path, querySeparatorComponents, queryComponents).encode();
-        var urlPattern = urlEqualTo(pathAndQuery);
-
-        var withoutBody = WireMock.request(request.method().value(),
-                                           urlPattern);
-
-        return request.maybeBody()
-                      .fold(() -> withoutBody,
-                            body -> withoutBody.withRequestBody(binaryEqualTo(body.value())));
-    }
-
-    private void consume(Future<Response<byte[]>> eventualResponse,
-                         TickTock.Tick tick) {
-        eventualResponse.await(2, SECONDS);
-        var tickTock = tick.tock();
-        Statistics.label("duration in ms").collect(tickTock.duration());
-    }
-
     @Provide
     Arbitrary<?> safe(TypeUsage typeUsage) {
         if (typeUsage.isOfType(Method.class)) {
             return Arbitraries.of(GET, HEAD, POST, PUT, DELETE, OPTIONS, PATCH);
         }
         return Arbitraries.forType(typeUsage.getRawType());
-    }
-
-    @Provide
-    Arbitrary<Request<byte[]>> requests() {
-        var methodArbitrary = Arbitraries.of(GET, HEAD, POST, PUT, DELETE, OPTIONS, PATCH);
-        var uriArbitrary = uris().filter(uri -> uri.encode().length() < 8000);
-        var headersArbitrary = headers().filter(headers -> headers.toString().length() < 8000);
-        var maybeBodyArbitrary = bodies(byte[].class).optional().map(Option::ofOptional);
-
-        return methodArbitrary
-                .flatMap(method -> uriArbitrary
-                        .flatMap(uri -> headersArbitrary
-                                .flatMap(headers -> maybeBodyArbitrary
-                                        .map(maybeBody -> request(method, uri, headers, maybeBody))
-                                )
-                        )
-                );
-    }
-
-    public record ArbitraryUriComponentsParent(Seq<UriComponent> components) implements UriComponentParent {
-        public static ArbitraryUriComponentsParent arbitraryComponents(Seq<UriComponent> components) {
-            return new ArbitraryUriComponentsParent(components);
-        }
-
-        @SafeVarargs
-        public static ArbitraryUriComponentsParent concat(Iterable<UriComponent>... iterables) {
-            return arbitraryComponents(Stream.concat(iterables));
-        }
     }
 }
