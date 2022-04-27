@@ -9,11 +9,17 @@ import io.vavr.collection.Stream;
 import io.vavr.control.Option;
 
 import java.util.Iterator;
+import java.util.function.BiConsumer;
 
 public interface Headers extends Iterable<Tuple2<HeaderName, HeaderValue>> {
     Multimap<HeaderName, HeaderValue> multimap();
 
     Stream<? extends Header> stream();
+
+    default void forEach(BiConsumer<HeaderName, HeaderValue> action) {
+        stream().forEach(header -> action.accept(header.headerName(),
+                                                 header.headerValue()));
+    }
 
     Seq<Header> get(HeaderName headerName);
 

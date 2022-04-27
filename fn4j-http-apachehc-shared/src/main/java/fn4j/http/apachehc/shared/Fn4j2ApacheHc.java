@@ -35,9 +35,10 @@ public interface Fn4j2ApacheHc {
         var basicHttpRequest = new BasicHttpRequest(method(requestHead.method()),
                                                     requestHead.uri().asJavaURI());
         requestHead.headers()
-                   .stream()
-                   .forEach(header -> basicHttpRequest.addHeader(header.headerName().value(),
-                                                                 header.headerValue().value()));
+                   .forEach((headerName, headerValue) -> {
+                       basicHttpRequest.addHeader(headerName.value(),
+                                                  headerValue.value());
+                   });
         return basicHttpRequest;
     }
 

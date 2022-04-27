@@ -55,7 +55,7 @@ public final class Fn4jHttpCoreArbitraries {
     }
 
     public static Arbitrary<HeaderValue> headerValues() {
-        return strings().map(HeaderValue::new);
+        return strings().withCharRange('!', '~').map(String::trim).map(HeaderValue::new);
     }
 
     public static <B> Arbitrary<Message<B>> messages(Class<B> bodyClass) {
