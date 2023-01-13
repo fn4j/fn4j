@@ -23,11 +23,16 @@ public interface Validator<A, B> extends Function1<A, Validated<B>> {
         return value -> apply(value).mapInvalid(mapper);
     }
 
-    default <C> Validator<A, C> and(Validator<? super B, C> mapper) {
+    default <C> Validator<A, C> flatMap(Validator<? super B, C> mapper) {
         return value -> apply(value).flatMap(mapper);
     }
 
-    default Validator<A, A> inputAsOutput() {
+    default Validator<A, A> and(Validator<? super B, ?> validator) {
+        return ofAll(this,
+                     flatMap(validator).back());
+    }
+
+    default Validator<A, A> back() {
         return value -> mapValid(__ -> value).apply(value);
     }
 

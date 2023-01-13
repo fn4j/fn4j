@@ -23,18 +23,24 @@ public interface Validators {
         return value -> value != null ? valid(value) : invalid(violation(key("fn4j.validation.Validators.notNull")));
     }
 
-    static <A, B> Validator<A, A> move(Function<A, ? extends B> mapper,
-                                       Validator<? super B, ?> validator) {
-        return validator.compose(mapper).inputAsOutput();
+    static <A, B> Validator<A, B> move(Function<? super A, ? extends B> mapper) {
+        // TODO: Test
+        return Validators.<A>notNull().mapValid(mapper);
+    }
+
+    static <A, B> Validator<A, B> move(Function<? super A, ? extends B> mapper,
+                                       String name) {
+        // TODO: Test
+        return Validators.<A>notNull().withName(name).mapValid(mapper);
     }
 
     interface Iterables {
         static <A extends Iterable<?>> Validator<A, A> notEmpty() {
-            return Validators.<A>notNull().and(iterable -> iterable.iterator().hasNext() ? valid(iterable) : invalid(violation(key("fn4j.validation.Validators.Iterables.notEmpty"))));
+            return Validators.<A>notNull().flatMap(iterable -> iterable.iterator().hasNext() ? valid(iterable) : invalid(violation(key("fn4j.validation.Validators.Iterables.notEmpty"))));
         }
 
         static <I extends Iterable<A>, A> Validator<I, I> each(Validator<A, A> elementValidator) {
-            return Validators.<I>notNull().and(iterable -> Validated.ofAll(iterable, Stream.ofAll(iterable).zipWithIndex().map(elementAndIndex -> {
+            return Validators.<I>notNull().flatMap(iterable -> Validated.ofAll(iterable, Stream.ofAll(iterable).zipWithIndex().map(elementAndIndex -> {
                 var element = elementAndIndex._1();
                 var index = elementAndIndex._2();
                 return elementValidator.withName("[" + index + ']').apply(element);
@@ -44,23 +50,23 @@ public interface Validators {
 
     interface Strings {
         static Validator<String, String> notEmpty() {
-            return Validators.<String>notNull().and(value -> !value.isEmpty() ? valid(value) : invalid(violation(key("fn4j.validation.Validators.Strings.notEmpty"))));
+            return Validators.<String>notNull().flatMap(value -> !value.isEmpty() ? valid(value) : invalid(violation(key("fn4j.validation.Validators.Strings.notEmpty"))));
         }
 
         static Validator<String, String> notBlank() {
-            return Validators.<String>notNull().and(value -> !value.trim().isEmpty() ? valid(value) : invalid(violation(key("fn4j.validation.Validators.Strings.notBlank"))));
+            return Validators.<String>notNull().flatMap(value -> !value.trim().isEmpty() ? valid(value) : invalid(violation(key("fn4j.validation.Validators.Strings.notBlank"))));
         }
 
         static Validator<String, String> length(Exact exact) {
-            return Validators.<String>notNull().and(value -> exact.test(value.length()) ? valid(value) : invalid(violation(key("fn4j.validation.Validators.Strings.length.exact"))));
+            return Validators.<String>notNull().flatMap(value -> exact.test(value.length()) ? valid(value) : invalid(violation(key("fn4j.validation.Validators.Strings.length.exact"))));
         }
 
         static Validator<String, String> length(Minimum minimum) {
-            return Validators.<String>notNull().and(value -> minimum.test(value.length()) ? valid(value) : invalid(violation(key("fn4j.validation.Validators.Strings.length.minimum"))));
+            return Validators.<String>notNull().flatMap(value -> minimum.test(value.length()) ? valid(value) : invalid(violation(key("fn4j.validation.Validators.Strings.length.minimum"))));
         }
 
         static Validator<String, String> length(Maximum maximum) {
-            return Validators.<String>notNull().and(value -> maximum.test(value.length()) ? valid(value) : invalid(violation(key("fn4j.validation.Validators.Strings.length.maximum"))));
+            return Validators.<String>notNull().flatMap(value -> maximum.test(value.length()) ? valid(value) : invalid(violation(key("fn4j.validation.Validators.Strings.length.maximum"))));
         }
 
         static Validator<String, String> length(Minimum minimum,
@@ -69,7 +75,7 @@ public interface Validators {
         }
 
         static Validator<String, String> length(Range range) {
-            return Validators.<String>notNull().and(value -> range.test(value.length()) ? valid(value) : invalid(violation(key("fn4j.validation.Validators.Strings.length.range"))));
+            return Validators.<String>notNull().flatMap(value -> range.test(value.length()) ? valid(value) : invalid(violation(key("fn4j.validation.Validators.Strings.length.range"))));
         }
 
         static Validator<String, MatchResult> pattern(String pattern) {
@@ -77,7 +83,7 @@ public interface Validators {
         }
 
         static Validator<String, MatchResult> pattern(Pattern pattern) {
-            return Validators.<String>notNull().and(string -> {
+            return Validators.<String>notNull().flatMap(string -> {
                 var matcher = pattern.matcher(string);
                 return matcher.matches() ? valid(matcher.toMatchResult()) : invalid(violation(key("fn4j.validation.Validators.Strings.pattern")));
             });
@@ -86,17 +92,17 @@ public interface Validators {
 
     interface Integers {
         static Validator<Integer, Integer> min(int minimum) {
-            return Validators.<Integer>notNull().and(value -> value >= minimum ? valid(value) : invalid(violation(key("fn4j.validation.Validators.Integers.min"))));
+            return Validators.<Integer>notNull().flatMap(value -> value >= minimum ? valid(value) : invalid(violation(key("fn4j.validation.Validators.Integers.min"))));
         }
 
         static Validator<Integer, Integer> max(int maximum) {
-            return Validators.<Integer>notNull().and(value -> value <= maximum ? valid(value) : invalid(violation(key("fn4j.validation.Validators.Integers.max"))));
+            return Validators.<Integer>notNull().flatMap(value -> value <= maximum ? valid(value) : invalid(violation(key("fn4j.validation.Validators.Integers.max"))));
         }
     }
 
     interface Uuids {
         static Validator<String, UUID> uuidFromString() {
-            return Validators.<String>notNull().and(string -> {
+            return Validators.<String>notNull().flatMap(string -> {
                 try {
                     return valid(UUID.fromString(string));
                 } catch (IllegalArgumentException e) {

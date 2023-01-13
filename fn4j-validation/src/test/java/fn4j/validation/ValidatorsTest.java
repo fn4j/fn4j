@@ -57,11 +57,6 @@ class ValidatorsTest {
     }
 
     @Group
-    @Label("move")
-    class MoveTest {
-    }
-
-    @Group
     @Label("Iterables")
     class IterablesTest {
 
